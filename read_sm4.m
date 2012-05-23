@@ -10,6 +10,16 @@ fid = fopen(filename, 'r');
 
 %% read the file header
 file_header = read_file_header();          % file header
+% the file header contains 
+%       header size: the size for the actual header
+%       signature: STiMage 004.000 1
+%                      mayor version. minor version Unicode=1
+%       total page count: the basic structure is a page, where data is
+%                         saved
+%       object_list_count: the count of objects that comes after the file
+%                          header
+%       object_field_size: size of the following object (4 for each struct)
+%       reserved: bytes reserved for future use.
 
 %% read the objet list: 
 for i=1:file_header.object_list_count
@@ -36,9 +46,12 @@ clear aux
 %% read page headers: use the data in page_idex_array
 
 % for i=1:
-fseek(fid,page_index_array(1,1).offset-1,'bof')
+% ftell(fid)
+fseek(fid,page_index_array(1,1).offset-1,'bof');
+
 page_header = read_page_header();
 % 
+
 % 
 
 
@@ -95,13 +108,14 @@ data={file_header, object_list, page_index_header,...
     end
 %%
     function out = read_page_header()
-        out.field_size = fread(fid,1,'short',0,'l'); % 2 bytes
-        %%%% 
-        out.signatures = fread(fid, 18, 'short=>char',0,'l'); % 36 bytes
-%
-%         fseek(fid,36,0)
-        out.string_count = fread(fid,1,'int16'); % 2 bytes        
-        out.type = fread(fid,1,'uint32'); %4 bytes
+%         out.field_size = fread(fid, 1, 'short');
+%         out.signatures = fread(fid, 18, 'int16=>char'); % 
+% I do not read the field_size and the signature that is explained in the
+% manual. 
+% I just skip 3 bytes and it works!  (next fseek)
+        fseek(fid,3,0)
+        out.string_count = fread(fid,1,'short'); % 2 bytes        
+        out.type = fread(fid,1,'int32'); %4 bytes
         out.page_type = fread(fid,1,'uint32'); %4 bytes
         out.data_sub_source = fread(fid,1,'uint32'); %4 bytes
         out.line_type = fread(fid,1,'uint32'); %4 bytes
