@@ -113,7 +113,7 @@ data={file_header, object_list, page_index_header,...
 % I do not read the field_size and the signature that is explained in the
 % manual. 
 % I just skip 3 bytes and it works!  (next fseek)
-        fseek(fid,3,0)
+        fseek(fid,3,0);
         out.string_count = fread(fid,1,'short');        % 2 bytes        
 %         out.type = fread(fid,1,'int32');              % 4 bytes
 % it looks like the manual is not right. There is only one type and it
@@ -123,16 +123,17 @@ data={file_header, object_list, page_index_header,...
         out.line_type = fread(fid,1,'uint32');          % 4 bytes
         out.xy = fread(fid,4,'uint32');                 % 16 bytes
             out.x_corner = out.xy(1);
-            out.y_corner = out.xy(2);
+            out.y_corner = out.xy(2); % interpret th 4-size structure
             out.width = out.xy(3);
             out.height = out.xy(4);
-        out.source_type = fread(fid,1,'int32'); %4 bytes
-        out.image_type = fread(fid,1,'int32'); %4 bytes
-        out.scan = fread(fid,1,'int32'); %4 bytes
-        out.group_id = fread(fid,1,'int32'); %4 bytes
+% AGAIN: I do not read the source_type, as it is indicated at the manual
+%         out.source_type = fread(fid,1,'int32');         % 4 bytes
+        out.image_type = fread(fid,1,'int32');          % 4 bytes
+        out.scan_dir = fread(fid,1,'uint32');           % 4 bytes
+        out.group_id = fread(fid,1,'int32');            % 4 bytes
         % many pages can be aquired in each page
-        out.page_data_size = fread(fid,1,'uint32'); %4 bytes
-        out.min_z_value = fread(fid,1,'uint32'); %4 bytes
+        out.page_data_size = fread(fid,1,'ulong');      % 4 bytes
+        out.min_z_value = fread(fid,2,'uint32'); %4 bytes
         out.max_z_value = fread(fid,1,'uint32'); %4 bytes
         out.x_scale = fread(fid,1,'float32'); %4 bytes
         out.y_scale = fread(fid,1,'float32'); %4 bytes
