@@ -14,5 +14,5 @@ page_header=data{6};
 
 % page_header.field_size
 page_header
-page_header.min_z_value
+% page_header.min_z_value
 

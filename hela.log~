@@ -1918,7 +1918,7 @@ Module: ../../../modules/file/rhk-sm4.c:661: rhk_sm4_read_page_index: data_type:
 Module: ../../../modules/file/rhk-sm4.c:899: rhk_sm4_read_objects: object of type 3 (PageHeader) at 1847930, size 180
 Module: ../../../modules/file/rhk-sm4.c:899: rhk_sm4_read_objects: object of type 4 (PageData) at 1848906, size 262144
 Module: ../../../modules/file/rhk-sm4.c:899: rhk_sm4_read_objects: object of type 14 (Thumbnail) at 2584072, size 65536
-Module: ../../../modules/file/rhk-sm4.c:899: rhk_sm4_read_objects: object of type 16 (ThumbnailHeader) at 2584060, size 12
+Module: ../../../modules/file/rhk-sm4.c:899: rhk_sm4_read_objects: object of type 16 (ThumbnailHeader) at 2584060, size 12 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Module: ../../../modules/file/rhk-sm4.c:695: rhk_sm4_read_page_header: string_count = 17
 Module: ../../../modules/file/rhk-sm4.c:697: rhk_sm4_read_page_header: page_type = 27
 Module: ../../../modules/file/rhk-sm4.c:702: rhk_sm4_read_page_header: x_coord = 0, y_coord = 0

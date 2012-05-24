@@ -133,23 +133,23 @@ data={file_header, object_list, page_index_header,...
         out.group_id = fread(fid,1,'int32');            % 4 bytes
         % many pages can be aquired in each page
         out.page_data_size = fread(fid,1,'ulong');      % 4 bytes
-        out.min_z_value = fread(fid,2,'uint32'); %4 bytes
-        out.max_z_value = fread(fid,1,'uint32'); %4 bytes
-        out.x_scale = fread(fid,1,'float32'); %4 bytes
-        out.y_scale = fread(fid,1,'float32'); %4 bytes
-        out.z_scale = fread(fid,1,'float32'); %4 bytes
-        out.xy_scale = fread(fid,1,'float32'); %4 bytes
-        out.x_offset = fread(fid,1,'float32'); %4 bytes
-        out.y_offset = fread(fid,1,'float32'); %4 bytes
-        out.z_offset = fread(fid,1,'float32'); %4 bytes
-        out.period = fread(fid,1,'float32'); %4 bytes
-        out.bias = fread(fid,1,'float32'); %4 bytes
-        out.current = fread(fid,1,'float32'); %4 bytes
-        out.angle = fread(fid,1,'float32'); %4 bytes
-        out.color_info_count = fread(fid,1,'int32'); %4 bytes
-        out.grid_x_size = fread(fid,1,'int32'); %4 bytes
-        out.grid_y_size = fread(fid,1,'int32'); %4 bytes
-        out.reserved = fread(fid,16,'uint32'); % 4 bytes
+        out.min_z_value = fread(fid,1,'int32');         % 4 bytes
+        out.max_z_value = fread(fid,1,'int32');         % 4 bytes
+        out.x_scale = fread(fid,1,'float32');           % 4 bytes
+        out.y_scale = fread(fid,1,'float32');           % 4 bytes
+        out.z_scale = fread(fid,1,'float32');           % 4 bytes
+        out.xy_scale = fread(fid,1,'float');            % 4 bytes
+        out.x_offset = fread(fid,1,'float');            % 4 bytes
+        out.y_offset = fread(fid,1,'float');            % 4 bytes
+        out.z_offset = fread(fid,1,'float');            % 4 bytes
+        out.period = fread(fid,1,'float32');            % 4 bytes
+        out.bias = fread(fid,1,'float32');              % 4 bytes
+        out.current = fread(fid,1,'float32');           % 4 bytes
+        out.angle = fread(fid,1,'float32');             % 4 bytes
+        out.color_info_count = fread(fid,1,'int32');    % 4 bytes
+        out.grid_x_size = fread(fid,1,'int32');         % 4 bytes
+        out.grid_y_size = fread(fid,1,'int32');         % 4 bytes
+        out.reserved = fread(fid,16,'uint32');          % 4 bytes
     end
 
 %% object type

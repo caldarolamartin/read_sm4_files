@@ -1918,7 +1918,7 @@ Module: ../../../modules/file/rhk-sm4.c:661: rhk_sm4_read_page_index: data_type:
 Module: ../../../modules/file/rhk-sm4.c:899: rhk_sm4_read_objects: object of type 3 (PageHeader) at 1847930, size 180
 Module: ../../../modules/file/rhk-sm4.c:899: rhk_sm4_read_objects: object of type 4 (PageData) at 1848906, size 262144
 Module: ../../../modules/file/rhk-sm4.c:899: rhk_sm4_read_objects: object of type 14 (Thumbnail) at 2584072, size 65536
-Module: ../../../modules/file/rhk-sm4.c:899: rhk_sm4_read_objects: object of type 16 (ThumbnailHeader) at 2584060, size 12 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Module: ../../../modules/file/rhk-sm4.c:899: rhk_sm4_read_objects: object of type 16 (ThumbnailHeader) at 2584060, size 12 
 Module: ../../../modules/file/rhk-sm4.c:695: rhk_sm4_read_page_header: string_count = 17
 Module: ../../../modules/file/rhk-sm4.c:697: rhk_sm4_read_page_header: page_type = 27
 Module: ../../../modules/file/rhk-sm4.c:702: rhk_sm4_read_page_header: x_coord = 0, y_coord = 0
@@ -1928,7 +1928,7 @@ Module: ../../../modules/file/rhk-sm4.c:713: rhk_sm4_read_page_header: scan_dir 
 Module: ../../../modules/file/rhk-sm4.c:715: rhk_sm4_read_page_header: group_id = 0x03e35d55
 Module: ../../../modules/file/rhk-sm4.c:717: rhk_sm4_read_page_header: data_size = 262144
 Module: ../../../modules/file/rhk-sm4.c:720: rhk_sm4_read_page_header: min,max_z_value = -2711 -2086
-Module: ../../../modules/file/rhk-sm4.c:725: rhk_sm4_read_page_header: x,y,z_scale = -1.75781e-07 -1.75781e-07 3.05176e-05
+Module: ../../../modules/file/rhk-sm4.c:725: rhk_sm4_read_page_header: x,y,z_scale = -1.75781e-07 -1.75781e-07 3.05176e-05 %%%%%%%%%%%
 Module: ../../../modules/file/rhk-sm4.c:742: rhk_sm4_read_page_header: x,y,z_offset = 7.29639e-06 -3.50227e-06 0
 Module: ../../../modules/file/rhk-sm4.c:748: rhk_sm4_read_page_header: period = 0.003905, bias = 0.499382, current = -3.89099e-05, angle = 0
 Module: ../../../modules/file/rhk-sm4.c:750: rhk_sm4_read_page_header: color_info_count = 1
