@@ -5,64 +5,39 @@ function data=read_sm4(filename)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%
 
-%% open the file
+
 fid = fopen(filename, 'r');
+% read the file header
+header = read_header();          % file header
 
-%% read the file header
-file_header = read_file_header();          % file header
-% the file header contains 
-%       header size: the size for the actual header
-%       signature: STiMage 004.000 1
-%                      mayor version. minor version Unicode=1
-%       total page count: the basic structure is a page, where data is
-%                         saved
-%       object_list_count: the count of objects that comes after the file
-%                          header
-%       object_field_size: size of the following object (4 for each struct)
-%       reserved: bytes reserved for future use.
-
-%% read the objet list: 
-for i=1:file_header.object_list_count
-    object_list(i) = read_objects();
+%read the objet list: 
+for i=1:header.object_list_count
+    header_objects(i) = struct_object();
 end
 
-%%
-page_index_header = read_page_index_header(); % says the number of pages enlisted in the page index array
-%% get the page index array
-object = read_objects(); % says that the structure we are reading is "page index array"
+page_index_header = read_page_index_header();
 
-% this reads the page index array
-% it is an array of (page_count X 4) because for each page we have 4
-% structures to read: (PageHeader) (PageData) (Thumbnail) (ThumnailHeader)
-for j=1:page_index_header.page_count % this for reads the page index array for each page
-    page_index(j) = read_page_index()
-    for i=1: page_index(j).object_list_count
-        aux(i) = read_objects();
+object = struct_object();
+
+for j=1:header.total_page_count
+    page_index_array(j) = read_page_index_array()
+    
+    for i=1: page_index_array(j).object_list_count
+        aux(i) = struct_object();
     end
-    page_index_array(j,:)=aux;
+    header2_objects(j,:)=aux;
 end
-clear aux
 
-%% read page headers: use the data in page_idex_array
+page_header = read_page_header()
 
-% for i=1:
-% ftell(fid)
-fseek(fid,page_index_array(1,1).offset-1,'bof');
-
-page_header = read_page_header();
-% 
-
-% 
-
-
-%% close the file
 fclose(fid); % close the file
+
 %% output of the program: a cell with all the structures
-data={file_header, object_list, page_index_header,...
-        page_index, page_index_array, page_header};
+data={header, header_objects, page_index_header, object,...
+        page_index_array, header2_objects, page_header};
 
 %% %%%%%%%%%%%%%%55
-    function out = read_file_header() %reads the header of the file
+    function out = read_header() %reads the h0000eader of the file
         out.header_size = fread(fid, 1, 'uint16');
         out.signature = fread(fid, 18, 'uint16=>char');
         out.total_page_count = fread(fid, 1, 'uint32');
@@ -71,7 +46,7 @@ data={file_header, object_list, page_index_header,...
         out.reserved = fread(fid, 2, 'uint32');       
     end
     
-    function out = read_objects()
+    function out = struct_object()
         out.objectID = fread(fid,1,'uint32');
         out.offset = fread(fid,1,'uint32');
         out.size = fread(fid,1,'uint32');
@@ -82,8 +57,8 @@ data={file_header, object_list, page_index_header,...
         out.object_list_count= fread(fid,1,'uint32'); 
         out.reserved = fread(fid, 2, 'uint32');  
     end
-%%
-    function out = read_page_index()
+
+    function out = read_page_index_array()
 %         out.page_id = fread(fid,1,'uint32'); % unique ID for each page
         out.page_id = fread(fid, 8, 'uint16');
         out.page_data_type=fread(fid,1,'uint32'); % data type
@@ -106,24 +81,18 @@ data={file_header, object_list, page_index_header,...
         out.object_list_count = fread(fid,1,'uint32'); % object count
         out.minorv = fread(fid,1,'uint32'); % minor version
     end
-%%
+
     function out = read_page_header()
-%         out.field_size = fread(fid, 1, 'short');
-%         out.signatures = fread(fid, 18, 'int16=>char'); % 
-% I do not read the field_size and the signature that is explained in the
-% manual. 
-% I just skip 3 bytes and it works!  (next fseek)
-        fseek(fid,3,0)
-        out.string_count = fread(fid,1,'short');        % 2 bytes        
-%         out.type = fread(fid,1,'int32');              % 4 bytes
-% it looks like the manual is not right. There is only one type and it
-% seems to be page_type.
-        out.page_type = fread(fid,1,'uint32');          % 4 bytes
-        out.data_sub_source = fread(fid,1,'uint32');    % 4 bytes
-        out.line_type = fread(fid,1,'uint32');          % 4 bytes
-        out.xy = fread(fid,4,'uint32');                 % 16 bytes
-            out.x_corner = out.xy(1);
-            out.y_corner = out.xy(2);
+        out.field_size = fread(fid,1,'uint16'); % 2 bytes
+        out.signatures = fread(fid, 18, 'uint16=>char'); % 36 bytes
+        out.count = fread(fid,1,'uint16'); % 2 bytes        
+        out.type = fread(fid,1,'uint32'); %4 bytes
+        out.page_type = fread(fid,1,'uint32'); %4 bytes
+        out.data_sub_source = fread(fid,1,'uint32'); %4 bytes
+        out.line_type = fread(fid,1,'uint32'); %4 bytes
+        out.xy = fread(fid,4,'uint32'); %16 bytes
+            out.x_cord = out.xy(1);
+            out.y_cord = out.xy(2);
             out.width = out.xy(3);
             out.height = out.xy(4);
         out.source_type = fread(fid,1,'int32'); %4 bytes
