@@ -1,8 +1,12 @@
 function data=read_sm4(filename)
+% This functions is designed to read the binary data of the .sm4 files,
+% produced by the XMpro software (RHK technology Inc.)
 %
 %
-%
-%
+% Created by: M. Caldarola (caldarola@df.uba.ar)
+%   Author's comment: I want to thank H. Grecco for his help in this
+%                     matter.
+% May 2012
 %%%%%%%%%%%%%%%%%%%%%%%%
 
 %% open the file
@@ -21,7 +25,7 @@ file_header = read_file_header();          % file header
 %       object_field_size: size of the following object (4 for each struct)
 %       reserved: bytes reserved for future use.
 
-%% read the objet list: 
+%% read the objet list: Says what is in the file and where it is located
 for i=1:file_header.object_list_count
     object_list(i) = read_objects();
 end
@@ -31,25 +35,29 @@ page_index_header = read_page_index_header(); % says the number of pages enliste
 %% get the page index array
 object = read_objects(); % says that the structure we are reading is "page index array"
 
-% this reads the page index array
+%% this reads the page index array
 % it is an array of (page_count X 4) because for each page we have 4
 % structures to read: (PageHeader) (PageData) (Thumbnail) (ThumnailHeader)
+
 for j=1:page_index_header.page_count % this for reads the page index array for each page
     page_index(j) = read_page_index()
-    for i=1: page_index(j).object_list_count
+    for i=1: page_index(j).object_list_count % this for reads the objects in each column
         aux(i) = read_objects();
     end
-    page_index_array(j,:)=aux;
+    page_index_array(j,:)=aux; % this builds an array of (N x4) where N is the numbers of pages in the file
 end
 clear aux
 
-%% read page headers: use the data in page_idex_array
+%% read page header: use the data in page_idex_array
 
-% for i=1:
-% ftell(fid)
-fseek(fid,page_index_array(1,1).offset-1,'bof');
+fseek(fid,page_index_array(1,1).offset-1,'bof'); % seek for the position where the page header is
+page_header = read_page_header(); % read the page header with the function defined later in this file
 
-page_header = read_page_header();
+
+%% after the page_header there is another object list (8 objects)
+for i=1:8
+    object_list_string(i) = read_objects();
+end
 % 
 
 % 
@@ -59,9 +67,12 @@ page_header = read_page_header();
 fclose(fid); % close the file
 %% output of the program: a cell with all the structures
 data={file_header, object_list, page_index_header,...
-        page_index, page_index_array, page_header};
-
-%% %%%%%%%%%%%%%%55
+        page_index, page_index_array, page_header,...
+        object_list_string};
+%%%%%%%%%%%%%%%%%
+% START WITH EACH FUNCTION DEFINITION
+%%%%%%%%%%%%%%%%%
+%% READ FILE HEADER
     function out = read_file_header() %reads the header of the file
         out.header_size = fread(fid, 1, 'uint16');
         out.signature = fread(fid, 18, 'uint16=>char');
@@ -70,13 +81,13 @@ data={file_header, object_list, page_index_header,...
         out.object_field_size = fread(fid, 1, 'uint32');
         out.reserved = fread(fid, 2, 'uint32');       
     end
-    
+%%  Generic read objects: used to read the data that localize each object
     function out = read_objects()
-        out.objectID = fread(fid,1,'uint32');
-        out.offset = fread(fid,1,'uint32');
-        out.size = fread(fid,1,'uint32');
+        out.objectID = fread(fid,1,'uint32');   % 4 bytes 
+        out.offset = fread(fid,1,'uint32');     % 4 bytes
+        out.size = fread(fid,1,'uint32');       % 4 bytes
     end
-
+%%
     function out = read_page_index_header()
         out.page_count = fread(fid,1,'uint32'); % the number of pages in the page index array
         out.object_list_count= fread(fid,1,'uint32'); 
@@ -149,7 +160,7 @@ data={file_header, object_list, page_index_header,...
         out.color_info_count = fread(fid,1,'int32');    % 4 bytes
         out.grid_x_size = fread(fid,1,'int32');         % 4 bytes
         out.grid_y_size = fread(fid,1,'int32');         % 4 bytes
-        out.reserved = fread(fid,16,'uint32');          % 4 bytes
+        out.reserved = fread(fid,16,'uint32');          % 16 bytes
     end
 
 %% object type

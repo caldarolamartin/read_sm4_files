@@ -11,8 +11,7 @@ page_index_header=data{3};
 page_index=data{4};
 page_index_array=data{5};
 page_header=data{6};
+object_list_string=data{7};
 
-% page_header.field_size
-page_header
-% page_header.min_z_value
+
 

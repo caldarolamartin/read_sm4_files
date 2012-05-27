@@ -31,25 +31,29 @@ page_index_header = read_page_index_header(); % says the number of pages enliste
 %% get the page index array
 object = read_objects(); % says that the structure we are reading is "page index array"
 
-% this reads the page index array
+%% this reads the page index array
 % it is an array of (page_count X 4) because for each page we have 4
 % structures to read: (PageHeader) (PageData) (Thumbnail) (ThumnailHeader)
+
 for j=1:page_index_header.page_count % this for reads the page index array for each page
     page_index(j) = read_page_index()
-    for i=1: page_index(j).object_list_count
+    for i=1: page_index(j).object_list_count % this for read
         aux(i) = read_objects();
     end
     page_index_array(j,:)=aux;
 end
 clear aux
 
-%% read page headers: use the data in page_idex_array
+%% read page header: use the data in page_idex_array
 
-% for i=1:
-% ftell(fid)
-fseek(fid,page_index_array(1,1).offset-1,'bof');
+fseek(fid,page_index_array(1,1).offset-1,'bof'); % seek for the position where the page header is
+page_header = read_page_header(); % read the page header with the function defined later in this file
 
-page_header = read_page_header();
+
+%% after the page_header there is another object list (8 objects)
+for i=1:8
+    object_list_string(i) = read_objects();
+end
 % 
 
 % 
@@ -59,9 +63,12 @@ page_header = read_page_header();
 fclose(fid); % close the file
 %% output of the program: a cell with all the structures
 data={file_header, object_list, page_index_header,...
-        page_index, page_index_array, page_header};
-
-%% %%%%%%%%%%%%%%55
+        page_index, page_index_array, page_header,...
+        object_list_string};
+%%%%%%%%%%%%%%%%%
+% START WITH EACH FUNCTION DEFINITION
+%%%%%%%%%%%%%%%%%
+%% READ FILE HEADER
     function out = read_file_header() %reads the header of the file
         out.header_size = fread(fid, 1, 'uint16');
         out.signature = fread(fid, 18, 'uint16=>char');
@@ -70,13 +77,13 @@ data={file_header, object_list, page_index_header,...
         out.object_field_size = fread(fid, 1, 'uint32');
         out.reserved = fread(fid, 2, 'uint32');       
     end
-    
+%%  Generic read objects: used to read the data that localize each object
     function out = read_objects()
-        out.objectID = fread(fid,1,'uint32');
-        out.offset = fread(fid,1,'uint32');
-        out.size = fread(fid,1,'uint32');
+        out.objectID = fread(fid,1,'uint32');   % 4 bytes 
+        out.offset = fread(fid,1,'uint32');     % 4 bytes
+        out.size = fread(fid,1,'uint32');       % 4 bytes
     end
-
+%%
     function out = read_page_index_header()
         out.page_count = fread(fid,1,'uint32'); % the number of pages in the page index array
         out.object_list_count= fread(fid,1,'uint32'); 
@@ -126,31 +133,30 @@ data={file_header, object_list, page_index_header,...
             out.y_corner = out.xy(2); % interpret th 4-size structure
             out.width = out.xy(3);
             out.height = out.xy(4);
-% AGAIN: I do n
+% AGAIN: I do not read the source_type, as it is indicated at the manual
 %         out.source_type = fread(fid,1,'int32');         % 4 bytes
-
         out.image_type = fread(fid,1,'int32');          % 4 bytes
-        out.scan_dir = fread(fid,1,'uint32');            % 4 bytes
+        out.scan_dir = fread(fid,1,'uint32');           % 4 bytes
         out.group_id = fread(fid,1,'int32');            % 4 bytes
         % many pages can be aquired in each page
         out.page_data_size = fread(fid,1,'ulong');      % 4 bytes
-        out.min_z_value = fread(fid,1,'uint32'); %4 bytes
-        out.max_z_value = fread(fid,1,'uint32'); %4 bytes
-        out.x_scale = fread(fid,1,'float32'); %4 bytes
-        out.y_scale = fread(fid,1,'float32'); %4 bytes
-        out.z_scale = fread(fid,1,'float32'); %4 bytes
-        out.xy_scale = fread(fid,1,'float32'); %4 bytes
-        out.x_offset = fread(fid,1,'float32'); %4 bytes
-        out.y_offset = fread(fid,1,'float32'); %4 bytes
-        out.z_offset = fread(fid,1,'float32'); %4 bytes
-        out.period = fread(fid,1,'float32'); %4 bytes
-        out.bias = fread(fid,1,'float32'); %4 bytes
-        out.current = fread(fid,1,'float32'); %4 bytes
-        out.angle = fread(fid,1,'float32'); %4 bytes
-        out.color_info_count = fread(fid,1,'int32'); %4 bytes
-        out.grid_x_size = fread(fid,1,'int32'); %4 bytes
-        out.grid_y_size = fread(fid,1,'int32'); %4 bytes
-        out.reserved = fread(fid,16,'uint32'); % 4 bytes
+        out.min_z_value = fread(fid,1,'int32');         % 4 bytes
+        out.max_z_value = fread(fid,1,'int32');         % 4 bytes
+        out.x_scale = fread(fid,1,'float32');           % 4 bytes
+        out.y_scale = fread(fid,1,'float32');           % 4 bytes
+        out.z_scale = fread(fid,1,'float32');           % 4 bytes
+        out.xy_scale = fread(fid,1,'float');            % 4 bytes
+        out.x_offset = fread(fid,1,'float');            % 4 bytes
+        out.y_offset = fread(fid,1,'float');            % 4 bytes
+        out.z_offset = fread(fid,1,'float');            % 4 bytes
+        out.period = fread(fid,1,'float32');            % 4 bytes
+        out.bias = fread(fid,1,'float32');              % 4 bytes
+        out.current = fread(fid,1,'float32');           % 4 bytes
+        out.angle = fread(fid,1,'float32');             % 4 bytes
+        out.color_info_count = fread(fid,1,'int32');    % 4 bytes
+        out.grid_x_size = fread(fid,1,'int32');         % 4 bytes
+        out.grid_y_size = fread(fid,1,'int32');         % 4 bytes
+        out.reserved = fread(fid,16,'uint32');          % 16 bytes
     end
 
 %% object type
