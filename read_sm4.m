@@ -30,8 +30,9 @@ for i=1:file_header.object_list_count
     object_list(i) = read_objects();
 end
 
-%%
-page_index_header = read_page_index_header(); % says the number of pages enlisted in the page index array
+%% Read the page index header
+% says the number of pages enlisted in the page index array
+page_index_header = read_page_index_header(); 
 %% get the page index array
 object = read_objects(); % says that the structure we are reading is "page index array"
 
@@ -55,20 +56,21 @@ page_header = read_page_header(); % read the page header with the function defin
 
 
 %% after the page_header there is another object list (8 objects)
-for i=1:8
+
+fseek(fid,4,0); % skip 4 bytes (unexplainable, yet)
+for i=1:9
     object_list_string(i) = read_objects();
 end
+%% read string data
 % 
-
-% 
-
+string_data = read_string_data();
 
 %% close the file
 fclose(fid); % close the file
 %% output of the program: a cell with all the structures
 data={file_header, object_list, page_index_header,...
         page_index, page_index_array, page_header,...
-        object_list_string};
+        object_list_string, string_data};
 %%%%%%%%%%%%%%%%%
 % START WITH EACH FUNCTION DEFINITION
 %%%%%%%%%%%%%%%%%
