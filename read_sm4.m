@@ -1,4 +1,4 @@
-function data=read_sm4(filename)
+function info=read_sm4(filename)
 % This functions is designed to read the binary data of the .sm4 files,
 % produced by the XMpro software (RHK technology Inc.)
 %
@@ -50,27 +50,44 @@ end
 clear aux
 
 %% read page header: use the data in page_idex_array
-
-fseek(fid,page_index_array(1,1).offset-1,'bof'); % seek for the position where the page header is
-page_header = read_page_header(); % read the page header with the function defined later in this file
-
-
-%% after the page_header there is another object list (8 objects)
-
-fseek(fid,4,0); % skip 4 bytes (unexplainable, yet)
-for i=1:9
-    object_list_string(i) = read_objects();
+% this for runs over the page count and reads the page_header, the 
+% object_list_string and the string_data for each page
+% with this information the data can be acceced and understood.
+for j = 1:page_index_header.page_count
+    fseek(fid,page_index_array(j,1).offset-1,'bof'); % seek for the position where the page header is
+    page_header(j) = read_page_header(); % read the page header with the function defined later in this file
+    
+    % after the page_header there is another object list (8 objects)
+    fseek(fid,4,0); % skip 4 bytes (unexplainable, yet)
+    for i=1:9
+        object_list_string(j,i) = read_objects();
+    end
+    % read string data
+    string_data(j) = read_string_data();
+    
 end
-%% read string data
-% 
-string_data = read_string_data();
+%% REad sequencial data page
+% this says how data is stored
+
+sequencial_data_page = read_sequencial_data_page();
+
+%% read data for each page
+% This is to get the data. It automatically takes all the pages detected
+%
+%
+data = read_data();
 
 %% close the file
+
 fclose(fid); % close the file
-%% output of the program: a cell with all the structures
-data={file_header, object_list, page_index_header,...
+
+%% output of the program 
+% It is a cell with all the structures
+
+info={file_header, object_list, page_index_header,...
         page_index, page_index_array, page_header,...
-        object_list_string, string_data};
+        object_list_string, string_data, sequencial_data_page...
+        data};
 
     
 %%    
@@ -184,7 +201,7 @@ data={file_header, object_list, page_index_header,...
         out.grid_y_size = fread(fid,1,'int32');         % 4 bytes
         out.reserved = fread(fid,16,'uint32');          % 16 bytes
     end
-%% read string data
+%% Function: read string data
 %
 %
 %%%%%%%%%%%
@@ -197,24 +214,24 @@ data={file_header, object_list, page_index_header,...
         aux{4,1} = 'User_Text';     % User comments.
         aux{5,1} = 'Path';          % Path and name of the SM4 file, which holds the page.
         aux{6,1} = 'Date';          % Stores the date at which data is acquired.
-        aux{7,1} = 'Time'           % Stores the time at which data is acquired.
+        aux{7,1} = 'Time';          % Stores the time at which data is acquired.
         aux{8,1} = 'X_Units';       % Physical units of that axis, like “m” or “A”.
         aux{9,1} = 'Y_Units';       % Physical units of that axis.
         aux{10,1} = 'Z_Units';      % Physical units of that axis.
         aux{11,1} = 'X_Label';      %
         aux{12,1} = 'Y_Label';      % 
-        aux{13,1} = 'Status_Channel_Text'   % Status channel text
-        aux{14,1} = 'strCompletedLineCount' % Completed line count info. 
+        aux{13,1} = 'Status_Channel_Text';  % Status channel text
+        aux{14,1} = 'strCompletedLineCount';% Completed line count info. 
                                             % This string contains the last saved
                                             % line count for an image data page. 
                                             % For all other pages, this value will be zero.
-        aux{15,1} = 'StrOverSamplingCount'  % This string contains the Oversampling count 
+        aux{15,1} = 'StrOverSamplingCount'; % This string contains the Oversampling count 
                                             % for image data pages. For all other pages 
                                             % this value will be zero.
-        aux{16,1} = 'StrSlicedVoltage'      % The voltage at which the sliced image is 
+        aux{16,1} = 'StrSlicedVoltage';     % The voltage at which the sliced image is 
                                             % created from the spectra page. This string
                                             % will be empty for pages other than sliced image pages.
-        aux{17,1} = 'StrPLLProStatus'       % This string contains the PLLPro status text, 
+        aux{17,1} = 'StrPLLProStatus';      % This string contains the PLLPro status text, 
                                             % if the operating mode is selected as PLLPro 
                                             % master or PLLPro user.
 
@@ -227,6 +244,29 @@ data={file_header, object_list, page_index_header,...
         end
         out.strings = aux;
         clear aux
+    end
+
+%% Function Sequencial_data_page
+    function out=read_sequencial_data_page();
+        out.data_type = fread(fid,1,'int32');
+            % 1 = Spec Drift (Stores the SSpecInfo structure as the Data, Param Count gives the
+            % number of float data in this structure.)
+            % 2 = Image Drift (Stores the SImageDrift structure as the Data, Param Count gives the
+            % number of float data in this structure.)
+            % 3 = Tip Track (Stores the StipTrackInfo structure as the Data, Param Count gives the
+            % number of float data in this structure.)
+        out.data_length = fread(fid,1,'int32');
+    end
+
+%% Function: Read_data
+%
+%
+%%%%%%%%%%%
+    function out=read_data();
+        for j=1:page_index_header.page_count
+            fseek(fid,page_index_array(j,2).offset-1,'bof');
+            out{j} = fread(fid,page_index_array(j,2).size,'long');
+        end
     end
 
 %% DEFINITIONS FROM THE MANUAL
