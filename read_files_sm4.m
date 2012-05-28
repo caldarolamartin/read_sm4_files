@@ -1,6 +1,6 @@
 clear 
 filename = 'Hela_0001.SM4';
-% filename = 'C:\Documents and Settings\martin\Desktop\TSpec_test_vidrio_0003.sm4';
+% filename = 'TSpec_test_vidrio_0003.sm4';
 info=read_sm4(filename);
 
 
@@ -18,9 +18,14 @@ data = info{9};
 % data = info{10};
 
 %% Plot 2 d data
-for i=1:size(data,2)
-    figure
-    imagesc(data{i})
-end
+% for i=1:size(data,2)
+%     figure
+%     imagesc(data{i})
+% end
 
+figure
+imagesc(data{4})
+    
+figure
+imagesc(data{end})
 
