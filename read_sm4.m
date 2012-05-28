@@ -69,7 +69,7 @@ end
 %% REad sequencial data page
 % this says how data is stored
 
-sequencial_data_page = read_sequencial_data_page();
+% sequencial_data_page = read_sequencial_data_page();
 
 %% read data for each page
 % This is to get the data. It automatically takes all the pages detected
@@ -86,8 +86,8 @@ fclose(fid); % close the file
 
 info={file_header, object_list, page_index_header,...
         page_index, page_index_array, page_header,...
-        object_list_string, string_data, sequencial_data_page...
-        data};
+        object_list_string, string_data, data};%sequencial_data_page...
+%         data};
 
     
 %%    
@@ -208,14 +208,14 @@ info={file_header, object_list, page_index_header,...
     function out = read_string_data();
         aux = {};
         aux{1,1} = 'Label';         % String that goes on the top of the plot window, 
-                                    % like “Current Image”.
+                                    % like “Current Image�?.
         aux{2,1} = 'System_Text';   % A comment describing the data.
         aux{3,1} = 'Session_Text';  % General session comments.
         aux{4,1} = 'User_Text';     % User comments.
         aux{5,1} = 'Path';          % Path and name of the SM4 file, which holds the page.
         aux{6,1} = 'Date';          % Stores the date at which data is acquired.
         aux{7,1} = 'Time';          % Stores the time at which data is acquired.
-        aux{8,1} = 'X_Units';       % Physical units of that axis, like “m” or “A”.
+        aux{8,1} = 'X_Units';       % Physical units of that axis, like “m�? or “A�?.
         aux{9,1} = 'Y_Units';       % Physical units of that axis.
         aux{10,1} = 'Z_Units';      % Physical units of that axis.
         aux{11,1} = 'X_Label';      %
@@ -265,8 +265,12 @@ info={file_header, object_list, page_index_header,...
     function out=read_data();
         for j=1:page_index_header.page_count
             fseek(fid,page_index_array(j,2).offset-1,'bof');
-            out{j} = fread(fid,page_index_array(j,2).size,'long');
+            out{j} = fread(fid,page_index_array(j,2).size/4,'long');
+            % /4 is because the total data size has to be divided
+            % by the numer of bytes that use each 'long' data
+            out{j} = reshape(out{j},page_header(j).width,page_header(j).height);
         end
+        
     end
 
 %% DEFINITIONS FROM THE MANUAL

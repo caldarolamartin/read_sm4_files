@@ -13,11 +13,14 @@ page_index_array = info{5};
 page_header = info{6};
 object_list_string = info{7};
 string_data = info{8};
-sequencial_data_page = info{9}
-data = info{10};
+data = info{9};
+% sequencial_data_page = info{9};
+% data = info{10};
 
-%%
-
-sequencial_data_page
+%% Plot 2 d data
+for i=1:size(data,2)
+    figure
+    imagesc(data{i})
+end
 
 
