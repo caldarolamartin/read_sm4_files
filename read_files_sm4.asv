@@ -23,9 +23,9 @@ data = info{9};
 %     imagesc(data{i})
 % end
 
-figure
-imagesc(data{4})
-    
+% figure
+% imagesc(data{4})
+%     
 figure
 imagesc(data{end})
 

@@ -1,5 +1,5 @@
 clear 
-filename = 'Hela_0001.SM4';
+filename = 'TGZ03_0001.SM4';
 % filename = 'TSpec_test_vidrio_0003.sm4';
 info=read_sm4(filename);
 
@@ -23,9 +23,15 @@ data = info{9};
 %     imagesc(data{i})
 % end
 
+% figure
+% imagesc(data{4})
+%     
+z=data{end};
 figure
-imagesc(data{4})
-    
+imagesc(z)
+colorbar
+colormap(gray)
+
 figure
-imagesc(data{end})
+plot(z(:,168))
 
