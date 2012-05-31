@@ -17,21 +17,20 @@ data = info{9};
 % sequencial_data_page = info{9};
 % data = info{10};
 
-%% Plot 2 d data
-% for i=1:size(data,2)
-%     figure
-%     imagesc(data{i})
-% end
-
-% figure
-% imagesc(data{4})
-%     
-z=data{end};
+%% Plot 2 d datax
+for i=1:size(data,2)
+    figure
+    imagesc([data{i}.x(1),data{i}.x(end)],[data{i}.y(1),data{i}.y(end)],...
+            data{i}.z)
+    colorbar
+    colormap(gray)
+    title([string_data(i).strings{1,2},' [',string_data(i).strings{10,2},']'])
+    xlabel(string_data(i).strings{8,2})
+    ylabel(string_data(i).strings{9,2})
+    
+end
+%% Take a profile
+    
 figure
-imagesc(z)
-colorbar
-colormap(gray)
-
-figure
-plot(z(:,168))
+plot(data{end}.x,data{end}.z(:,end))
 
