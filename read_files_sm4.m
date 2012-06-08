@@ -1,5 +1,6 @@
 clear 
 filename = 'TGZ03_0001.SM4';
+% filename = 'Hela_0001.SM4';
 % filename = 'TSpec_test_vidrio_0003.sm4';
 info=read_sm4(filename);
 
@@ -17,7 +18,7 @@ data = info{9};
 % sequencial_data_page = info{9};
 % data = info{10};
 
-%% Plot 2 d datax
+%% Plot ALL 2 d data 
 for i=1:size(data,2)
     figure
     imagesc([data{i}.x(1),data{i}.x(end)],[data{i}.y(1),data{i}.y(end)],...
@@ -32,5 +33,7 @@ end
 %% Take a profile
     
 figure
-plot(data{end}.x,data{end}.z(:,end))
-
+plot(data{end}.y,data{end}.z(end,:))
+%%
+figure
+plot(data{1}.x,data{1}.z(:,1))

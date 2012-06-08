@@ -390,9 +390,10 @@ info={file_header, object_list, page_index_header,...
             % by the numer of bytes that use each 'long' data
             
             % change to physical units the measured data
-            aux = page_header(j).z_offset+double(aux)*page_header(j).z_scale;
+            aux2 = page_header(j).z_offset+(aux)*page_header(j).z_scale;
+%             aux = (aux)*page_header(j).z_scale;
             % reshape to build a matix
-            out{j}.z = reshape(aux,page_header(j).width,page_header(j).height);
+            out{j}.z = reshape(aux2,page_header(j).width,page_header(j).height);
             out{j}.x=page_header(j).x_offset+(0:page_header(j).width-1)*page_header(j).x_scale;
             out{j}.y=page_header(j).y_offset+(0:page_header(j).height-1)*page_header(j).y_scale;
         end
