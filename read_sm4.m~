@@ -9,239 +9,8 @@ function info=read_sm4(filename)
 % May 2012
 %%%%%%%%%%%%%%%%%%%%%%%%
 
-%% open the file
-fid = fopen(filename, 'r');
 
-%% read the file header
-file_header = read_file_header();          % file header
-% the file header contains 
-%       header size: the size for the actual header
-%       signature: STiMage 004.000 1
-%                      mayor version. minor version Unicode=1
-%       total page count: the basic structure is a page, where data is
-%                         saved
-%       object_list_count: the count of objects that comes after the file
-%                          header
-%       object_field_size: size of the following object (4 for each struct)
-%       reserved: bytes reserved for future use.
-
-%% read the objet list: Says what is in the file and where it is located
-for i=1:file_header.object_list_count
-    object_list(i) = read_objects();
-end
-
-%% Read the page index header
-% says the number of pages enlisted in the page index array
-page_index_header = read_page_index_header(); 
-%% get the page index array
-object = read_objects(); % says that the structure we are reading is "page index array"
-
-%% this reads the page index array
-% it is an array of (page_count X 4) because for each page we have 4
-% structures to read: (PageHeader) (PageData) (Thumbnail) (ThumnailHeader)
-
-for j=1:page_index_header.page_count % this for reads the page index array for each page
-    page_index(j) = read_page_index()
-    for i=1: page_index(j).object_list_count % this for reads the objects in each column
-        aux(i) = read_objects();
-    end
-    page_index_array(j,:)=aux; % this builds an array of (N x4) where N is the numbers of pages in the file
-end
-clear aux
-
-%% read page header: use the data in page_idex_array
-% this for runs over the page count and reads the page_header, the 
-% object_list_string and the string_data for each page
-% with this information the data can be acceced and understood.
-for j = 1:page_index_header.page_count
-    fseek(fid,page_index_array(j,1).offset-1,'bof'); % seek for the position where the page header is
-    page_header(j) = read_page_header(); % read the page header with the function defined later in this file
-    
-    % after the page_header there is another object list (8 objects)
-    fseek(fid,4,0); % skip 4 bytes (unexplainable, yet)
-    for i=1:9
-        object_list_string(j,i) = read_objects();
-    end
-    % read string data
-    string_data(j) = read_string_data();
-    
-end
-
-%% read data for each page
-
-for j=1:page_index_header.page_count
-    fseek(fid,page_index_array(j,2).offset-1,'bof');
-    data{j} = fread(fid,page_index_array(j,2).size,'float'); 
-end
-
-
-
-%% close the file
-fclose(fid); % close the file
-%% output of the program 
-% It is a cell with all the structures
-info={file_header, object_list, page_index_header,...
-        page_index, page_index_array, page_header,...
-        object_list_string, string_data, data};
-
-    
-%%    
-%%%%%%%%%%%%%%%%%
-% START WITH EACH FUNCTION DEFINITION
-%%%%%%%%%%%%%%%%%
-%% READ FILE HEADER
-%
-%
-%%%%%%%%%%%
-    function out = read_file_header() %reads the header of the file
-        out.header_size = fread(fid, 1, 'uint16');
-        out.signature = fread(fid, 18, 'uint16=>char');
-        out.total_page_count = fread(fid, 1, 'uint32');
-        out.object_list_count = fread(fid, 1, 'uint32');
-        out.object_field_size = fread(fid, 1, 'uint32');
-        out.reserved = fread(fid, 2, 'uint32');       
-    end
-%%  Generic read objects: used to read the data that localize each object
-%
-%
-%%%%%%%%%%%
-    function out = read_objects()
-        out.objectID = fread(fid,1,'uint32');   % 4 bytes 
-        out.offset = fread(fid,1,'uint32');     % 4 bytes
-        out.size = fread(fid,1,'uint32');       % 4 bytes
-    end
-%%
-%
-%
-%%%%%%%%%%%
-    function out = read_page_index_header()
-        out.page_count = fread(fid,1,'uint32'); % the number of pages in the page index array
-        out.object_list_count= fread(fid,1,'uint32'); 
-        out.reserved = fread(fid, 2, 'uint32');  
-    end
-%% Function: read_page_index
-% this function reads the page index
-%
-%
-%%%%%%%%%%%
-    function out = read_page_index()
-%         out.page_id = fread(fid,1,'uint32'); % unique ID for each page
-        out.page_id = fread(fid, 8, 'uint16');
-        out.page_data_type=fread(fid,1,'uint32'); % data type
-    %%%%%%%%%%% esto deberia ser un diccionario
-    % % Data type ID
-    % data_type = {RHK_DATA_IMAGE = 0,...
-    % RHK_DATA_LINE = 1,...
-    % RHK_DATA_XY_DATA = 2,...
-    % RHK_DATA_ANNOTATED_LINE = 3,...
-    % RHK_DATA_TEXT = 4,...
-    % RHK_DATA_ANNOTATED_TEXT = 5,...
-    % RHK_DATA_SEQUENTIAL = 6} %/* Only in RHKPageIndex */
-   
-        out.page_source_type = fread(fid,1,'uint32');
-    % identifiers
-    % RHK_SOURCE_RAW = 0,
-    % RHK_SOURCE_PROCESSED = 1,
-    % RHK_SOURCE_CALCULATED = 2,
-    % RHK_SOURCE_IMPORTED = 3,
-        out.object_list_count = fread(fid,1,'uint32'); % object count
-        out.minorv = fread(fid,1,'uint32'); % minor version
-    end
-%% Function: Read_page_header.
-% This function reads the page header
-%
-%
-%%%%%%%%%%%
-    function out = read_page_header()
-%         out.field_size = fread(fid, 1, 'short');
-%         out.signatures = fread(fid, 18, 'int16=>char'); % 
-% I do not read the field_size and the signature that is explained in the
-% manual. 
-% I just skip 3 bytes and it works!  (next fseek)
-        fseek(fid,3,0);
-        out.string_count = fread(fid,1,'short');        % 2 bytes        
-%         out.type = fread(fid,1,'int32');              % 4 bytes
-% it looks like the manual is not right. There is only one type and it
-% seems to be page_type.
-        out.page_type = fread(fid,1,'uint32');          % 4 bytes
-        out.data_sub_source = fread(fid,1,'uint32');    % 4 bytes
-        out.line_type = fread(fid,1,'uint32');          % 4 bytes
-        out.xy = fread(fid,4,'uint32');                 % 16 bytes
-            out.x_corner = out.xy(1);
-            out.y_corner = out.xy(2); % interpret th 4-size structure
-            out.width = out.xy(3);
-            out.height = out.xy(4);
-% AGAIN: I do not read the source_type, as it is indicated at the manual
-%         out.source_type = fread(fid,1,'int32');         % 4 bytes
-        out.image_type = fread(fid,1,'int32');          % 4 bytes
-        out.scan_dir = fread(fid,1,'uint32');           % 4 bytes
-        out.group_id = fread(fid,1,'int32');            % 4 bytes
-        % many pages can be aquired in each page
-        out.page_data_size = fread(fid,1,'ulong');      % 4 bytes
-        out.min_z_value = fread(fid,1,'int32');         % 4 bytes
-        out.max_z_value = fread(fid,1,'int32');         % 4 bytes
-        out.x_scale = fread(fid,1,'float32');           % 4 bytes
-        out.y_scale = fread(fid,1,'float32');           % 4 bytes
-        out.z_scale = fread(fid,1,'float32');           % 4 bytes
-        out.xy_scale = fread(fid,1,'float');            % 4 bytes
-        out.x_offset = fread(fid,1,'float');            % 4 bytes
-        out.y_offset = fread(fid,1,'float');            % 4 bytes
-        out.z_offset = fread(fid,1,'float');            % 4 bytes
-        out.period = fread(fid,1,'float32');            % 4 bytes
-        out.bias = fread(fid,1,'float32');              % 4 bytes
-        out.current = fread(fid,1,'float32');           % 4 bytes
-        out.angle = fread(fid,1,'float32');             % 4 bytes
-        out.color_info_count = fread(fid,1,'int32');    % 4 bytes
-        out.grid_x_size = fread(fid,1,'int32');         % 4 bytes
-        out.grid_y_size = fread(fid,1,'int32');         % 4 bytes
-        out.reserved = fread(fid,16,'uint32');          % 16 bytes
-    end
-%% read string data
-%
-%
-%%%%%%%%%%%
-    function out = read_string_data();
-        aux = {};
-        aux{1,1} = 'Label';         % String that goes on the top of the plot window, 
-                                    % like “Current Image”.
-        aux{2,1} = 'System_Text';   % A comment describing the data.
-        aux{3,1} = 'Session_Text';  % General session comments.
-        aux{4,1} = 'User_Text';     % User comments.
-        aux{5,1} = 'Path';          % Path and name of the SM4 file, which holds the page.
-        aux{6,1} = 'Date';          % Stores the date at which data is acquired.
-        aux{7,1} = 'Time';          % Stores the time at which data is acquired.
-        aux{8,1} = 'X_Units';       % Physical units of that axis, like “m” or “A”.
-        aux{9,1} = 'Y_Units';       % Physical units of that axis.
-        aux{10,1} = 'Z_Units';      % Physical units of that axis.
-        aux{11,1} = 'X_Label';      %
-        aux{12,1} = 'Y_Label';      % 
-        aux{13,1} = 'Status_Channel_Text';  % Status channel text
-        aux{14,1} = 'strCompletedLineCount';% Completed line count info. 
-                                            % This string contains the last saved
-                                            % line count for an image data page. 
-                                            % For all other pages, this value will be zero.
-        aux{15,1} = 'StrOverSamplingCount'; % This string contains the Oversampling count 
-                                            % for image data pages. For all other pages 
-                                            % this value will be zero.
-        aux{16,1} = 'StrSlicedVoltage';     % The voltage at which the sliced image is 
-                                            % created from the spectra page. This string
-                                            % will be empty for pages other than sliced image pages.
-        aux{17,1} = 'StrPLLProStatus';      % This string contains the PLLPro status text, 
-                                            % if the operating mode is selected as PLLPro 
-                                            % master or PLLPro user.
-
-                                            
-                                            
-        for i=1:size(aux,1)
-            out.count(i) = fread(fid,1,'uint16');
-            aux{i,2} = fread(fid,out.count(i),'uint16=>char')';
-            
-        end
-        out.strings = aux;
-        clear aux
-    end
-
-
+%% to do: create dictionaries for this terms
 %% DEFINITIONS FROM THE MANUAL
 % Object Type
 % Image Type
@@ -251,8 +20,8 @@ info={file_header, object_list, page_index_header,...
 % scan direction
 
 %% object type
-% RHK_OBJECT_UNDEFINED = 0,
-% RHK_OBJECT_PAGE_INDEX_HEADER = 1,
+object_type{1,1} = 'RHK_OBJECT_UNDEFINED';          object_type{1,2} =  0;
+object_type{2,1} = 'RHK_OBJECT_PAGE_INDEX_HEADER';  object_type{2,2} =  = 1;
 % RHK_OBJECT_PAGE_INDEX_ARRAY = 2,
 % RHK_OBJECT_PAGE_HEADER = 3,
 % RHK_OBJECT_PAGE_DATA = 4,
@@ -355,6 +124,285 @@ info={file_header, object_list, page_index_header,...
 % RHK_SCAN_LEFT = 1,
 % RHK_SCAN_UP = 2,
 % RHK_SCAN_DOWN = 3
+
+%% open the file
+fid = fopen(filename, 'r');
+
+%% read the file header
+file_header = read_file_header();          % file header
+% the file header contains 
+%       header size: the size for the actual header
+%       signature: STiMage 004.000 1
+%                      mayor version. minor version Unicode=1
+%       total page count: the basic structure is a page, where data is
+%                         saved
+%       object_list_count: the count of objects that comes after the file
+%                          header
+%       object_field_size: size of the following object (4 for each struct)
+%       reserved: bytes reserved for future use.
+
+%% read the objet list: Says what is in the file and where it is located
+for i=1:file_header.object_list_count
+    object_list(i) = read_objects();
+end
+
+%% Read the page index header
+% says the number of pages enlisted in the page index array
+page_index_header = read_page_index_header(); 
+%% get the page index array
+object = read_objects(); % says that the structure we are reading is "page index array"
+
+%% this reads the page index array
+% it is an array of (page_count X 4) because for each page we have 4
+% structures to read: (PageHeader) (PageData) (Thumbnail) (ThumnailHeader)
+
+for j=1:page_index_header.page_count % this for reads the page index array for each page
+    page_index(j) = read_page_index()
+    for i=1: page_index(j).object_list_count % this for reads the objects in each column
+        aux(i) = read_objects();
+    end
+    page_index_array(j,:)=aux; % this builds an array of (N x4) where N is the numbers of pages in the file
+end
+clear aux
+
+%% read page header: use the data in page_idex_array
+% this for runs over the page count and reads the page_header, the 
+% object_list_string and the string_data for each page
+% with this information the data can be acceced and understood.
+for j = 1:page_index_header.page_count
+    fseek(fid,page_index_array(j,1).offset-1,'bof'); % seek for the position where the page header is
+    page_header(j) = read_page_header(); % read the page header with the function defined later in this file
+    
+    % after the page_header there is another object list (8 objects)
+    fseek(fid,4,0); % skip 4 bytes (unexplainable, yet)
+    for i=1:9
+        object_list_string(j,i) = read_objects();
+    end
+    % read string data
+    string_data(j) = read_string_data();
+    
+end
+%% read data for each page and change it to physical units
+% This is to get the data. It automatically takes all the pages detected
+%
+%
+data = read_data();
+
+
+
+
+%% create metadata
+
+% metadata =
+
+
+%% close the file
+
+fclose(fid); % close the file
+
+%% output of the program 
+% It is a cell with all the structures
+
+info={file_header, object_list, page_index_header,...
+        page_index, page_index_array, page_header,...
+        object_list_string, string_data, data};%sequencial_data_page...
+%         data};
+
+    
+%%    
+%%%%%%%%%%%%%%%%%
+% START WITH EACH FUNCTION DEFINITION
+%%%%%%%%%%%%%%%%%
+%% READ FILE HEADER
+%
+%
+%%%%%%%%%%%
+    function out = read_file_header() %reads the header of the file
+        out.header_size = fread(fid, 1, 'uint16');
+        out.signature = fread(fid, 18, 'uint16=>char');
+        out.total_page_count = fread(fid, 1, 'uint32');
+        out.object_list_count = fread(fid, 1, 'uint32');
+        out.object_field_size = fread(fid, 1, 'uint32');
+        out.reserved = fread(fid, 2, 'uint32');       
+    end
+%%  Generic read objects: used to read the data that localize each object
+%
+%
+%%%%%%%%%%%
+    function out = read_objects()
+        out.objectID = fread(fid,1,'uint32');   % 4 bytes 
+        out.offset = fread(fid,1,'uint32');     % 4 bytes
+        out.size = fread(fid,1,'uint32');       % 4 bytes
+    end
+%%
+%
+%
+%%%%%%%%%%%
+    function out = read_page_index_header()
+        out.page_count = fread(fid,1,'uint32'); % the number of pages in the page index array
+        out.object_list_count= fread(fid,1,'uint32'); 
+        out.reserved = fread(fid, 2, 'uint32');  
+    end
+%% Function: read_page_index
+% this function reads the page index
+%
+%
+%%%%%%%%%%%
+    function out = read_page_index()
+%         out.page_id = fread(fid,1,'uint32'); % unique ID for each page
+        out.page_id = fread(fid, 8, 'uint16');
+        out.page_data_type=fread(fid,1,'uint32'); % data type
+    %%%%%%%%%%% esto deberia ser un diccionario
+    % % Data type ID
+    % data_type = 
+%     data_type{1,1} = RHK_DATA_IMAGE = 0,...
+    % RHK_DATA_LINE = 1,...
+    % RHK_DATA_XY_DATA = 2,...
+    % RHK_DATA_ANNOTATED_LINE = 3,...
+    % RHK_DATA_TEXT = 4,...
+    % RHK_DATA_ANNOTATED_TEXT = 5,...
+    % RHK_DATA_SEQUENTIAL = 6} %/* Only in RHKPageIndex */
+   
+        out.page_source_type = fread(fid,1,'uint32');
+    % identifiers
+    % RHK_SOURCE_RAW = 0,
+    % RHK_SOURCE_PROCESSED = 1,
+    % RHK_SOURCE_CALCULATED = 2,
+    % RHK_SOURCE_IMPORTED = 3,
+        out.object_list_count = fread(fid,1,'uint32'); % object count
+        out.minorv = fread(fid,1,'uint32'); % minor version
+    end
+%% Function: Read_page_header.
+% This function reads the page header
+%
+%
+%%%%%%%%%%%
+    function out = read_page_header()
+%         out.field_size = fread(fid, 1, 'short');
+%         out.signatures = fread(fid, 18, 'int16=>char'); % 
+% I do not read the field_size and the signature that is explained in the
+% manual. 
+% I just skip 3 bytes and it works!  (next fseek)
+        fseek(fid,3,0);
+        out.string_count = fread(fid,1,'short');        % 2 bytes        
+%         out.type = fread(fid,1,'int32');              % 4 bytes
+% it looks like the manual is not right. There is only one type and it
+% seems to be page_type.
+        out.page_type = fread(fid,1,'uint32');          % 4 bytes
+        out.data_sub_source = fread(fid,1,'uint32');    % 4 bytes
+        out.line_type = fread(fid,1,'uint32');          % 4 bytes
+        out.xy = fread(fid,4,'uint32');                 % 16 bytes
+            out.x_corner = out.xy(1);
+            out.y_corner = out.xy(2); % interpret th 4-size structure
+            out.width = out.xy(3);
+            out.height = out.xy(4);
+% AGAIN: I do not read the source_type, as it is indicated at the manual
+%         out.source_type = fread(fid,1,'int32');         % 4 bytes
+        out.image_type = fread(fid,1,'int32');          % 4 bytes
+        out.scan_dir = fread(fid,1,'uint32');           % 4 bytes
+        out.group_id = fread(fid,1,'int32');            % 4 bytes
+        % many pages can be aquired in each page
+        out.page_data_size = fread(fid,1,'ulong');      % 4 bytes
+        out.min_z_value = fread(fid,1,'int32');         % 4 bytes
+        out.max_z_value = fread(fid,1,'int32');         % 4 bytes
+        out.x_scale = fread(fid,1,'float32');           % 4 bytes
+        out.y_scale = fread(fid,1,'float32');           % 4 bytes
+        out.z_scale = fread(fid,1,'float32');           % 4 bytes
+        out.xy_scale = fread(fid,1,'float');            % 4 bytes
+        out.x_offset = fread(fid,1,'float');            % 4 bytes
+        out.y_offset = fread(fid,1,'float');            % 4 bytes
+        out.z_offset = fread(fid,1,'float');            % 4 bytes
+        out.period = fread(fid,1,'float32');            % 4 bytes
+        out.bias = fread(fid,1,'float32');              % 4 bytes
+        out.current = fread(fid,1,'float32');           % 4 bytes
+        out.angle = fread(fid,1,'float32');             % 4 bytes
+        out.color_info_count = fread(fid,1,'int32');    % 4 bytes
+        out.grid_x_size = fread(fid,1,'int32');         % 4 bytes
+        out.grid_y_size = fread(fid,1,'int32');         % 4 bytes
+        out.reserved = fread(fid,16,'uint32');          % 16 bytes
+    end
+%% Function: read string data
+%
+%
+%%%%%%%%%%%
+    function out = read_string_data();
+        aux = {};
+        aux{1,1} = 'Label';         % String that goes on the top of the plot window, 
+                                    % like 'Current Image'.
+        aux{2,1} = 'System_Text';   % A comment describing the data.
+        aux{3,1} = 'Session_Text';  % General session comments.
+        aux{4,1} = 'User_Text';     % User comments.
+        aux{5,1} = 'Path';          % Path and name of the SM4 file, which holds the page.
+        aux{6,1} = 'Date';          % Stores the date at which data is acquired.
+        aux{7,1} = 'Time';          % Stores the time at which data is acquired.
+        aux{8,1} = 'X_Units';       % Physical units of that axis, like m or V.
+        aux{9,1} = 'Y_Units';       % Physical units of that axis.
+        aux{10,1} = 'Z_Units';      % Physical units of that axis.
+        aux{11,1} = 'X_Label';      %
+        aux{12,1} = 'Y_Label';      % 
+        aux{13,1} = 'Status_Channel_Text';  % Status channel text
+        aux{14,1} = 'strCompletedLineCount';% Completed line count info. 
+                                            % This string contains the last saved
+                                            % line count for an image data page. 
+                                            % For all other pages, this value will be zero.
+        aux{15,1} = 'StrOverSamplingCount'; % This string contains the Oversampling count 
+                                            % for image data pages. For all other pages 
+                                            % this value will be zero.
+        aux{16,1} = 'StrSlicedVoltage';     % The voltage at which the sliced image is 
+                                            % created from the spectra page. This string
+                                            % will be empty for pages other than sliced image pages.
+        aux{17,1} = 'StrPLLProStatus';      % This string contains the PLLPro status text, 
+                                            % if the operating mode is selected as PLLPro 
+                                            % master or PLLPro user.
+
+                                            
+                                            
+        for i=1:size(aux,1)
+            out.count(i) = fread(fid,1,'uint16');
+            aux{i,2} = fread(fid,out.count(i),'uint16=>char')';
+            
+        end
+        out.strings = aux;
+        clear aux
+    end
+
+%% Function Sequencial_data_page
+    function out=read_sequencial_data_page();
+        out.data_type = fread(fid,1,'int32');
+            % 1 = Spec Drift (Stores the SSpecInfo structure as the Data, Param Count gives the
+            % number of float data in this structure.)
+            % 2 = Image Drift (Stores the SImageDrift structure as the Data, Param Count gives the
+            % number of float data in this structure.)
+            % 3 = Tip Track (Stores the StipTrackInfo structure as the Data, Param Count gives the
+            % number of float data in this structure.)
+        out.data_length = fread(fid,1,'int32');
+    end
+
+%% Function: Read_data
+%
+%
+%%%%%%%%%%%
+    function out=read_data();
+        for j=1:page_index_header.page_count
+            fseek(fid,page_index_array(j,2).offset-1,'bof');
+            aux = fread(fid,page_index_array(j,2).size/4,'int32','l');
+            % /4 is because the total data size has to be divided
+            % by the numer of bytes that use each 'long' data
+            
+            % change to physical units the measured data
+            aux2 = page_header(j).z_offset+double(aux)*page_header(j).z_scale/256;
+            % for some unkwon reason, to get the right scale I have to
+            % dived by 256.
+            %
+            % reshape to build a matix
+            out{j}.z = reshape(aux2,page_header(j).width,page_header(j).height);
+            out{j}.x=page_header(j).x_offset+(0:page_header(j).width-1)*page_header(j).x_scale;
+            out{j}.y=page_header(j).y_offset+(0:page_header(j).height-1)*page_header(j).y_scale;
+        end
+        
+    end
+
+
 
 
 end

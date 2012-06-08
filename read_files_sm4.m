@@ -33,7 +33,5 @@ end
 %% Take a profile
     
 figure
-plot(data{end}.y,data{end}.z(end,:))
-%%
-figure
-plot(data{1}.x,data{1}.z(:,1))
+plot(data{end}.y,data{end}.z(:,100))
+

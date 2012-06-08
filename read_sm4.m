@@ -20,8 +20,8 @@ function info=read_sm4(filename)
 % scan direction
 
 %% object type
-% RHK_OBJECT_UNDEFINED = 0,
-% RHK_OBJECT_PAGE_INDEX_HEADER = 1,
+object_type{1,1} = 'RHK_OBJECT_UNDEFINED';          object_type{1,2} =  0;
+object_type{2,1} = 'RHK_OBJECT_PAGE_INDEX_HEADER';  object_type{2,2} =  = 1;
 % RHK_OBJECT_PAGE_INDEX_ARRAY = 2,
 % RHK_OBJECT_PAGE_HEADER = 3,
 % RHK_OBJECT_PAGE_DATA = 4,
