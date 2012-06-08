@@ -385,13 +385,15 @@ info={file_header, object_list, page_index_header,...
     function out=read_data();
         for j=1:page_index_header.page_count
             fseek(fid,page_index_array(j,2).offset-1,'bof');
-            aux = fread(fid,page_index_array(j,2).size/4,'long');
+            aux = fread(fid,page_index_array(j,2).size/4,'int32','l');
             % /4 is because the total data size has to be divided
             % by the numer of bytes that use each 'long' data
             
             % change to physical units the measured data
-            aux2 = page_header(j).z_offset+(aux)*page_header(j).z_scale;
-%             aux = (aux)*page_header(j).z_scale;
+            aux2 = page_header(j).z_offset+double(aux)*page_header(j).z_scale/256;
+            % for some unkwon reason, to get the right scale I have to
+            % dived by 256.
+            %
             % reshape to build a matix
             out{j}.z = reshape(aux2,page_header(j).width,page_header(j).height);
             out{j}.x=page_header(j).x_offset+(0:page_header(j).width-1)*page_header(j).x_scale;
