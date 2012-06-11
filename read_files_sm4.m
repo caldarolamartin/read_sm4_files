@@ -15,8 +15,8 @@ page_header = info{6};
 object_list_string = info{7};
 string_data = info{8};
 data = info{9};
-% sequencial_data_page = info{9};
-% data = info{10};
+metadata = info{10};
+
 
 %% Plot ALL 2 d data 
 for i=1:size(data,2)

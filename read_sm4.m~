@@ -9,8 +9,6 @@ function info=read_sm4(filename)
 % May 2012
 %%%%%%%%%%%%%%%%%%%%%%%%
 
-
-%% to do: create dictionaries for this terms
 %% DEFINITIONS FROM THE MANUAL
 % Object Type
 % Image Type
@@ -20,7 +18,7 @@ function info=read_sm4(filename)
 % scan direction
 
 %% object type
-object_type.code = 0:17;
+object_type(1).code = 0:17;
 object_type.code(19) =  -42;   % file header code
 object_type.code(20) =  -43;   % file header code
 
@@ -116,21 +114,22 @@ line_type(22).name = 'RHK_LINE_ELECTROCHEMISTRY';                % = 21,
 line_type(23).name = 'RHK_LINE_DISCRETE_SPECTROSCOPY';           % = 22,
 
 %% source imgae type
-source_image.code = 0:3;
-% source_image(
-% RHK_SOURCE_RAW = 0,
-% RHK_SOURCE_PROCESSED = 1,
-% RHK_SOURCE_CALCULATED = 2,
-% RHK_SOURCE_IMPORTED = 3,
+source_image(1).code = 0:3;
+source_image(1).name = 'RHK_SOURCE_RAW';         % = 0,
+source_image(2).name = 'RHK_SOURCE_PROCESSED';   % = 1,
+source_image(3).name = 'RHK_SOURCE_CALCULATED';  % = 2,
+source_image(4).name = 'RHK_SOURCE_IMPORTED';    % = 3,
 %% image type
-% RHK_IMAGE_NORMAL = 0,
-% RHK_IMAGE_AUTOCORRELATED = 1,
+image_type2(1).code = [0 1];
+image_type2(1).name = 'RHK_IMAGE_NORMAL';           % = 0,
+image_type2(2).name = 'RHK_IMAGE_AUTOCORRELATED';   % = 1,
 
 %% scan direction
-% RHK_SCAN_RIGHT = 0,
-% RHK_SCAN_LEFT = 1,
-% RHK_SCAN_UP = 2,
-% RHK_SCAN_DOWN = 3
+scan_dir(1).code = 0:3; 
+scan_dir(1).name = 'RHK_SCAN_RIGHT';        % = 0,
+scan_dir(1).name = 'RHK_SCAN_LEFT';         % = 1,
+scan_dir(1).name = 'RHK_SCAN_UP';           % = 2,
+scan_dir(1).name = 'RHK_SCAN_DOWN';         % = 3,
 
 %% open the file
 fid = fopen(filename, 'r');
@@ -195,13 +194,11 @@ end
 %
 data = read_data();
 
-
-
-
 %% create metadata
-
-% metadata =
-
+%
+%
+for 
+metadata = 
 
 %% close the file
 

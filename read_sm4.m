@@ -127,9 +127,9 @@ image_type2(2).name = 'RHK_IMAGE_AUTOCORRELATED';   % = 1,
 %% scan direction
 scan_dir(1).code = 0:3; 
 scan_dir(1).name = 'RHK_SCAN_RIGHT';        % = 0,
-scan_dir(1).name = 'RHK_SCAN_LEFT';         % = 1,
-scan_dir(1).name = 'RHK_SCAN_UP';           % = 2,
-scan_dir(1).name = 'RHK_SCAN_DOWN';         % = 3,
+scan_dir(2).name = 'RHK_SCAN_LEFT';         % = 1,
+scan_dir(3).name = 'RHK_SCAN_UP';           % = 2,
+scan_dir(4).name = 'RHK_SCAN_DOWN';         % = 3,
 
 %% open the file
 fid = fopen(filename, 'r');
@@ -194,13 +194,13 @@ end
 %
 data = read_data();
 
-
-
-
 %% create metadata
-
-% metadata =
-
+%
+% %
+for i=1:file_header.total_page_count
+    metadata{i}.page_header = page_header(i); 
+    metadata{i}.string_data = string_data(i);
+end
 
 %% close the file
 
@@ -211,7 +211,7 @@ fclose(fid); % close the file
 
 info={file_header, object_list, page_index_header,...
         page_index, page_index_array, page_header,...
-        object_list_string, string_data, data};%sequencial_data_page...
+        object_list_string, string_data, data, metadata};%sequencial_data_page...
 %         data};
 
     
@@ -326,6 +326,11 @@ info={file_header, object_list, page_index_header,...
         out.grid_x_size = fread(fid,1,'int32');         % 4 bytes
         out.grid_y_size = fread(fid,1,'int32');         % 4 bytes
         out.reserved = fread(fid,16,'uint32');          % 16 bytes
+    % Extra code for introducing the corresponding name to page_type, 
+    % the image_type and the scan_dir
+    out.scan_dir_name = scan_dir(find(scan_dir(1).code==out.scan_dir)).name;
+    out.image_type_name = image_type(find(image_type(1).code==out.image_type)).name;
+    out.page_type_name = image_type(find(image_type(1).code==out.image_type)).name;
     end
 %% Function: read string data
 %
