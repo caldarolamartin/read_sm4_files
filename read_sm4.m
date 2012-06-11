@@ -209,11 +209,11 @@ fclose(fid); % close the file
 %% output of the program 
 % It is a cell with all the structures
 
-info={file_header, object_list, page_index_header,...
-        page_index, page_index_array, page_header,...
-        object_list_string, string_data, data, metadata};%sequencial_data_page...
-%         data};
-
+% info={file_header, object_list, page_index_header,...
+%         page_index, page_index_array, page_header,...
+%         object_list_string, string_data, data, metadata};
+%     
+info = {data,metadata};
     
 %%    
 %%%%%%%%%%%%%%%%%
@@ -385,17 +385,17 @@ info={file_header, object_list, page_index_header,...
         clear aux
     end
 
-%% Function Sequencial_data_page
-    function out=read_sequencial_data_page();
-        out.data_type = fread(fid,1,'int32');
-            % 1 = Spec Drift (Stores the SSpecInfo structure as the Data, Param Count gives the
-            % number of float data in this structure.)
-            % 2 = Image Drift (Stores the SImageDrift structure as the Data, Param Count gives the
-            % number of float data in this structure.)
-            % 3 = Tip Track (Stores the StipTrackInfo structure as the Data, Param Count gives the
-            % number of float data in this structure.)
-        out.data_length = fread(fid,1,'int32');
-    end
+% %% Function Sequencial_data_page
+%     function out=read_sequencial_data_page();
+%         out.data_type = fread(fid,1,'int32');
+%             % 1 = Spec Drift (Stores the SSpecInfo structure as the Data, Param Count gives the
+%             % number of float data in this structure.)
+%             % 2 = Image Drift (Stores the SImageDrift structure as the Data, Param Count gives the
+%             % number of float data in this structure.)
+%             % 3 = Tip Track (Stores the StipTrackInfo structure as the Data, Param Count gives the
+%             % number of float data in this structure.)
+%         out.data_length = fread(fid,1,'int32');
+%     end
 
 %% Function: Read_data
 %
