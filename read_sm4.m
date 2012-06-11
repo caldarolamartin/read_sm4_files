@@ -236,7 +236,9 @@ info={file_header, object_list, page_index_header,...
 %
 %%%%%%%%%%%
     function out = read_objects()
-        out.objectID = fread(fid,1,'uint32');   % 4 bytes 
+        out.objectID = fread(fid,1,'uint32');   % 4 bytes
+        % line that does not read
+        out.object_name = object_type(find(object_type(1).code == out.objectID)).name;
         out.offset = fread(fid,1,'uint32');     % 4 bytes
         out.size = fread(fid,1,'uint32');       % 4 bytes
     end
@@ -295,12 +297,14 @@ info={file_header, object_list, page_index_header,...
 % it looks like the manual is not right. There is only one type and it
 % seems to be page_type.
         out.page_type = fread(fid,1,'uint32');          % 4 bytes
-        % Line that do not read: to put the corresponding name
+        % Line that does not read: to put the corresponding name
         out.page_type_name = image_type(find(image_type(1).code==out.page_type)).name;
         out.data_sub_source = fread(fid,1,'uint32');    % 4 bytes
+        % Line that does not read: to put the corresponding name
+        out.data_sub_source_name = source_image(find(source_image(1).code == out.data_sub_source)).name; 
         out.line_type = fread(fid,1,'uint32');          % 4 bytes
-        % Line that do not read: to put the corresponding name
-        
+        % Line that does not read: to put the corresponding name
+        out.line_type_name = line_type(find(line_type(1).code == out.line_type)).name;
         out.xy = fread(fid,4,'uint32');                 % 16 bytes
             out.x_corner = out.xy(1);
             out.y_corner = out.xy(2); % interpret th 4-size structure
@@ -309,10 +313,10 @@ info={file_header, object_list, page_index_header,...
 % AGAIN: I do not read the source_type, as it is indicated at the manual
 %         out.source_type = fread(fid,1,'int32');         % 4 bytes
         out.image_type = fread(fid,1,'int32');          % 4 bytes
-        % Line that do not read: to put the corresponding name
+        % Line that does not read: to put the corresponding name
         out.image_type_name2 = image_type2(find(image_type2(1).code==out.image_type)).name;     
         out.scan_dir = fread(fid,1,'uint32');           % 4 bytes
-        % Line that do not read: to put the corresponding name
+        % Line that does not read: to put the corresponding name
         out.scan_dir_name = scan_dir(find(scan_dir(1).code==out.scan_dir)).name;
         out.group_id = fread(fid,1,'int32');            % 4 bytes
         % many pages can be aquired in each page

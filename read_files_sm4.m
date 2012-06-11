@@ -1,7 +1,7 @@
 clear 
-filename = 'TGZ03_0001.SM4';
+% filename = 'TGZ03_0001.SM4';
 % filename = 'Hela_0001.SM4';
-% filename = 'TSpec_test_vidrio_0003.sm4';
+filename = 'TSpec_test_vidrio_0003.SM4';
 info=read_sm4(filename);
 
 
