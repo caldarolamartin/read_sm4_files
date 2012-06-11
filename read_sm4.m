@@ -19,8 +19,8 @@ function info=read_sm4(filename)
 
 %% object type
 object_type(1).code = 0:17;
-object_type.code(19) =  -42;   % file header code
-object_type.code(20) =  -43;   % file header code
+object_type(1).code(19) =  -42;   % file header code
+object_type(1).code(20) =  -43;   % file header code
 
 object_type(1).name = 'RHK_OBJECT_UNDEFINED';          
 object_type(2).name = 'RHK_OBJECT_PAGE_INDEX_HEADER';  
@@ -199,7 +199,7 @@ data = read_data();
 % %
 for i=1:file_header.total_page_count
     metadata{i}.page_header = page_header(i); 
-    metadata{i}.string_data = string_data(i);
+    metadata{i}.string_data = string_data(i).strings;
 end
 
 %% close the file
@@ -295,8 +295,12 @@ info={file_header, object_list, page_index_header,...
 % it looks like the manual is not right. There is only one type and it
 % seems to be page_type.
         out.page_type = fread(fid,1,'uint32');          % 4 bytes
+        % Line that do not read: to put the corresponding name
+        out.page_type_name = image_type(find(image_type(1).code==out.page_type)).name;
         out.data_sub_source = fread(fid,1,'uint32');    % 4 bytes
         out.line_type = fread(fid,1,'uint32');          % 4 bytes
+        % Line that do not read: to put the corresponding name
+        
         out.xy = fread(fid,4,'uint32');                 % 16 bytes
             out.x_corner = out.xy(1);
             out.y_corner = out.xy(2); % interpret th 4-size structure
@@ -305,7 +309,11 @@ info={file_header, object_list, page_index_header,...
 % AGAIN: I do not read the source_type, as it is indicated at the manual
 %         out.source_type = fread(fid,1,'int32');         % 4 bytes
         out.image_type = fread(fid,1,'int32');          % 4 bytes
+        % Line that do not read: to put the corresponding name
+        out.image_type_name2 = image_type2(find(image_type2(1).code==out.image_type)).name;     
         out.scan_dir = fread(fid,1,'uint32');           % 4 bytes
+        % Line that do not read: to put the corresponding name
+        out.scan_dir_name = scan_dir(find(scan_dir(1).code==out.scan_dir)).name;
         out.group_id = fread(fid,1,'int32');            % 4 bytes
         % many pages can be aquired in each page
         out.page_data_size = fread(fid,1,'ulong');      % 4 bytes
@@ -326,11 +334,7 @@ info={file_header, object_list, page_index_header,...
         out.grid_x_size = fread(fid,1,'int32');         % 4 bytes
         out.grid_y_size = fread(fid,1,'int32');         % 4 bytes
         out.reserved = fread(fid,16,'uint32');          % 16 bytes
-    % Extra code for introducing the corresponding name to page_type, 
-    % the image_type and the scan_dir
-    out.scan_dir_name = scan_dir(find(scan_dir(1).code==out.scan_dir)).name;
-    out.image_type_name = image_type(find(image_type(1).code==out.image_type)).name;
-    out.page_type_name = image_type(find(image_type(1).code==out.image_type)).name;
+    
     end
 %% Function: read string data
 %
