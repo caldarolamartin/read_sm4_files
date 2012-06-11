@@ -345,44 +345,40 @@ info = {data,metadata};
 %
 %%%%%%%%%%%
     function out = read_string_data();
-        aux = {};
-        aux{1,1} = 'Label';         % String that goes on the top of the plot window, 
-                                    % like 'Current Image'.
-        aux{2,1} = 'System_Text';   % A comment describing the data.
-        aux{3,1} = 'Session_Text';  % General session comments.
-        aux{4,1} = 'User_Text';     % User comments.
-        aux{5,1} = 'Path';          % Path and name of the SM4 file, which holds the page.
-        aux{6,1} = 'Date';          % Stores the date at which data is acquired.
-        aux{7,1} = 'Time';          % Stores the time at which data is acquired.
-        aux{8,1} = 'X_Units';       % Physical units of that axis, like m or V.
-        aux{9,1} = 'Y_Units';       % Physical units of that axis.
-        aux{10,1} = 'Z_Units';      % Physical units of that axis.
-        aux{11,1} = 'X_Label';      %
-        aux{12,1} = 'Y_Label';      % 
-        aux{13,1} = 'Status_Channel_Text';  % Status channel text
-        aux{14,1} = 'strCompletedLineCount';% Completed line count info. 
-                                            % This string contains the last saved
-                                            % line count for an image data page. 
-                                            % For all other pages, this value will be zero.
-        aux{15,1} = 'StrOverSamplingCount'; % This string contains the Oversampling count 
-                                            % for image data pages. For all other pages 
-                                            % this value will be zero.
-        aux{16,1} = 'StrSlicedVoltage';     % The voltage at which the sliced image is 
-                                            % created from the spectra page. This string
-                                            % will be empty for pages other than sliced image pages.
-        aux{17,1} = 'StrPLLProStatus';      % This string contains the PLLPro status text, 
-                                            % if the operating mode is selected as PLLPro 
-                                            % master or PLLPro user.
+        for i=1:17
+            count = fread(fid,1,'uint16');
+            aux(i).str = fread(fid,count,'uint16=>char')'
+        end
+        out.Label = aux(1).str; % String that goes on the top of the plot window, 
+                                % like 'Current Image'.
+        out.System_Text = aux(2).str;   % A comment describing the data.
+        out.Session_Text = aux(3).str;  % General session comments.
+        out.User_Text = aux(4).str;     % User comments.
+        out.Path = aux(5).str;          % Path and name of the SM4 file, which holds the page.
+        out.Date = aux(6).str;          % Stores the date at which data is acquired.
+        out.Time = aux(7).str;          % Stores the time at which data is acquired.
+        out.X_Units = aux(8).str;       % Physical units of that axis, like m or V.
+        out.Y_Units = aux(9).str;       % Physical units of that axis.
+        out.Z_Units = aux(10).str;      % Physical units of that axis.
+        out.X_Label = aux(11).str;      %
+        out.Y_Label = aux(12).str;      % 
+        out.Status_Channel_Text = aux(13).str;      % Status channel text
+        out.strCompletedLineCount = aux(14).str;    % Completed line count info. 
+                                                    % This string contains the last saved
+                                                    % line count for an image data page. 
+                                                    % For all other pages, this value will be zero.
+        out.StrOverSamplingCount =aux(15).str;      % This string contains the Oversampling count 
+                                                    % for image data pages. For all other pages 
+                                                    % this value will be zero.
+        out.StrSlicedVoltage =aux(16).str;          % The voltage at which the sliced image is 
+                                                    % created from the spectra page. This string
+                                                    % will be empty for pages other than sliced image pages.
+        out.StrPLLProStatus = aux(17).str;           % This string contains the PLLPro status text, 
+                                                    % if the operating mode is selected as PLLPro 
+                                                    % master or PLLPro user.
 
                                             
-                                            
-        for i=1:size(aux,1)
-            out.count(i) = fread(fid,1,'uint16');
-            aux{i,2} = fread(fid,out.count(i),'uint16=>char')';
-            
-        end
-        out.strings = aux;
-        clear aux
+                    clear aux
     end
 
 % %% Function Sequencial_data_page

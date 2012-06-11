@@ -26,11 +26,11 @@ data = info{1}; metadata = info{2};
 for i = 1:size(data,2);
     figure
     plot(data{i}.x,data{i}.z)
-    title([metadata{i}.string_data{1,2},' [',...
-        metadata{i}.string_data{10,2},']'],'FontSize',20)
-    xlabel(metadata{i}.string_data{8,2},'FontSize',16) % x units 
+    title([metadata{i}.string_data.Label,' [',...
+        metadata{i}.string_data.Z_Units,']'],'FontSize',20)
+    xlabel(metadata{i}.string_data.X_Units,'FontSize',16) % x units 
     % in spectroscopy, y is empty
-    ylabel(metadata{i}.string_data{10,2},'FontSize',16) % z units
+    ylabel(metadata{i}.string_data.Z_Units,'FontSize',16) % z units
     grid
 end
 %% only for images
