@@ -162,8 +162,8 @@ object = read_objects(); % says that the structure we are reading is "page index
 % it is an array of (page_count X 4) because for each page we have 4
 % structures to read: (PageHeader) (PageData) (Thumbnail) (ThumnailHeader)
 
-for j=1:page_index_header.page_count % this for reads the page index array for each page
-    page_index(j) = read_page_index()
+for j=1:page_index_header.page_count; % this for reads the page index array for each page
+    page_index(j) = read_page_index();
     for i=1: page_index(j).object_list_count % this for reads the objects in each column
         aux(i) = read_objects();
     end
@@ -223,7 +223,7 @@ info = {data,metadata};
 %
 %
 %%%%%%%%%%%
-    function out = read_file_header() %reads the header of the file
+    function out = read_file_header(); %reads the header of the file
         out.header_size = fread(fid, 1, 'uint16');
         out.signature = fread(fid, 18, 'uint16=>char');
         out.total_page_count = fread(fid, 1, 'uint32');
@@ -259,7 +259,7 @@ info = {data,metadata};
     function out = read_page_index()
 %         out.page_id = fread(fid,1,'uint32'); % unique ID for each page
         out.page_id = fread(fid, 8, 'uint16');
-        out.page_data_type=fread(fid,1,'uint32'); % data type
+        out.page_data_type = fread(fid,1,'uint32'); % data type
     %%%%%%%%%%% esto deberia ser un diccionario
     % % Data type ID
     % data_type = 
@@ -291,7 +291,7 @@ info = {data,metadata};
 % I do not read the field_size and the signature that is explained in the
 % manual. 
 % I just skip 3 bytes and it works!  (next fseek)
-        fseek(fid,3,0);
+        fseek(fid,3,0);                                 % Skiping 3 bytes. Unkwonw reason.
         out.string_count = fread(fid,1,'short');        % 2 bytes        
 %         out.type = fread(fid,1,'int32');              % 4 bytes
 % it looks like the manual is not right. There is only one type and it
@@ -347,7 +347,7 @@ info = {data,metadata};
     function out = read_string_data();
         for i=1:17
             count = fread(fid,1,'uint16');
-            aux(i).str = fread(fid,count,'uint16=>char')'
+            aux(i).str = fread(fid,count,'uint16=>char')';
         end
         out.Label = aux(1).str; % String that goes on the top of the plot window, 
                                 % like 'Current Image'.
