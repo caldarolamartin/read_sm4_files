@@ -1,7 +1,19 @@
+% 
+% This script uses the function read_sm4.m to read the binary data saved
+% with the RHK format sm4 (saved in the program XMPro 2.0)
+%
+% It is an example of use of the mentioned function.
+% It plots the data obtained.
+%
+% Created by: M. Caldarola (caldarola@df.uba.ar)
+%
+% May-June 2012
+%%%%%%%%%%%%%%%%%%%%%%%%
+
 clear 
 % filename = 'TGZ03_0001.SM4';
 % filename = 'Hela_0001.SM4';
-filename = 'TSpec_test_vidrio_0003.SM4';
+filename = '/home/martin/lec/phd/programas/matlab/read_sm4/devel_files/TSpec_test_vidrio_0003.SM4';
 info=read_sm4(filename);
 
 

@@ -1,12 +1,23 @@
 function info=read_sm4(filename)
+%
+%
 % This functions is designed to read the binary data of the .sm4 files,
 % produced by the XMpro software (RHK technology Inc.)
 %
 %
+% The input is the complete path to the file and the output is a cell
+% structure with two other structures: the first one contains the data and
+% the second one contains the metadata of the file.
+%
+%
 % Created by: M. Caldarola (caldarola@df.uba.ar)
-%   Author's comment: I want to thank H. Grecco for his help in this
-%                     matter.
-% May 2012
+% Author's comment: I want to thank H. Grecco for his help in the idea and 
+%                   the inmeasurable help in this matter.
+%                   I also want to thank David Necas (Yeti) from gwyddion
+%                   project for his ideas and help.
+%
+%
+% May-June 2012
 %%%%%%%%%%%%%%%%%%%%%%%%
 
 %% DEFINITIONS FROM THE MANUAL
