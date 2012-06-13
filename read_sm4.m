@@ -1,4 +1,4 @@
-function info=read_sm4(filename)
+function [data metadata] = read_sm4(filename)
 %
 %
 % This functions is designed to read the binary data of the .sm4 files,
@@ -224,8 +224,8 @@ fclose(fid); % close the file
 %         page_index, page_index_array, page_header,...
 %         object_list_string, string_data, data, metadata};
 %     
-info = {data,metadata};
-    
+% info = {data,metadata};
+
 %%    
 %%%%%%%%%%%%%%%%%
 % START WITH EACH FUNCTION DEFINITION
