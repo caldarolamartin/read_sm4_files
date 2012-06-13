@@ -217,19 +217,13 @@ end
 
 fclose(fid); % close the file
 
-%% output of the program 
-% It is a cell with all the structures
+%% output of the program: the structures wher already defined
+% the output is data and metadata
 
-% info={file_header, object_list, page_index_header,...
-%         page_index, page_index_array, page_header,...
-%         object_list_string, string_data, data, metadata};
-%     
-% info = {data,metadata};
-
-%%    
-%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % START WITH EACH FUNCTION DEFINITION
-%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% READ FILE HEADER
 %
 %
