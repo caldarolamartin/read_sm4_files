@@ -21,6 +21,7 @@ function [data metadata] = read_sm4(filename)
 %%%%%%%%%%%%%%%%%%%%%%%%
 
 %% DEFINITIONS FROM THE MANUAL
+% Data type
 % Object Type
 % Image Type
 % Line Type
@@ -28,6 +29,17 @@ function [data metadata] = read_sm4(filename)
 % image type
 % scan direction
 
+%% data type
+data_type(1).code = 1:6;    % codes
+
+data_type(1).name = 'RHK_DATA_LINE';
+data_type(2).name = 'RHK_DATA_XY_DATA';
+data_type(3).name = 'RHK_DATA_ANNOTATED_LINE';
+data_type(4).name = 'RHK_DATA_TEXT';
+data_type(5).name = 'RHK_DATA_ANNOTATED_TEXT';
+data_type(6).name = 'RHK_DATA_SEQUENTIAL';
+%
+% /* Only in RHKPageIndex */
 %% object type
 object_type(1).code = 0:17;
 object_type(1).code(19) =  -42;   % file header code
@@ -302,14 +314,12 @@ fclose(fid); % close the file
 % it looks like the manual is not right. There is only one type and it
 % seems to be page_type.
         out.page_type = fread(fid,1,'uint32');          % 4 bytes
-        % Line that does not read: to put the corresponding name
-        out.page_type_name = image_type(find(image_type(1).code==out.page_type)).name;
+        out.page_type_name = image_type(find(image_type(1).code==out.page_type)).name; % use the page_type to put the corresponding name
         out.data_sub_source = fread(fid,1,'uint32');    % 4 bytes
-        % Line that does not read: to put the corresponding name
-        out.data_sub_source_name = source_image(find(source_image(1).code == out.data_sub_source)).name; 
+%         out.data_sub_source_name = source_image(find(source_image(1).code == out.data_sub_source)).name; % use the data_sub_source to put the corresponding name
         out.line_type = fread(fid,1,'uint32');          % 4 bytes
-        % Line that does not read: to put the corresponding name
-        out.line_type_name = line_type(find(line_type(1).code == out.line_type)).name;
+        out.line_type_name = line_type(find(line_type(1).code == out.line_type)).name; % use the line_type to put the corresponding name
+
         out.xy = fread(fid,4,'uint32');                 % 16 bytes
             out.x_corner = out.xy(1);
             out.y_corner = out.xy(2); % interpret th 4-size structure

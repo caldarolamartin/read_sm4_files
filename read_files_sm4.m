@@ -11,10 +11,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%
 
 clear 
-% filename = 'TGZ03_0001.SM4';
-% filename = 'Hela_0001.SM4';
-filename = '/home/martin/lec/phd/programas/matlab/read_sm4/devel_files/TSpec_test_vidrio_0003.SM4';
-info=read_sm4(filename);
+filename = '/home/martin/lec/phd/programas/matlab/read_sm4/devel_files/TGZ03_0001.SM4';
+% filename = '/home/martin/lec/phd/programas/matlab/read_sm4/devel_files/Hela_0001.SM4';
+% filename = '/home/martin/lec/phd/programas/matlab/read_sm4/devel_files/TSpec_test_vidrio_0003.SM4';
+[data metadata]=read_sm4(filename);
 
 
 %%
@@ -29,38 +29,38 @@ info=read_sm4(filename);
 % data = info{9};
 % metadata = info{10};
 
-data = info{1}; metadata = info{2};
+% data = info{1}; metadata = info{2};
 
 
 %% only for spectroscopy data
 
 % plot data
-for i = 1:size(data,2);
-    figure
-    plot(data{i}.x,data{i}.z)
-    title([metadata{i}.string_data.Label,' [',...
-        metadata{i}.string_data.Z_Units,']'],'FontSize',20)
-    xlabel(metadata{i}.string_data.X_Units,'FontSize',16) % x units 
-    % in spectroscopy, y is empty
-    ylabel(metadata{i}.string_data.Z_Units,'FontSize',16) % z units
-    grid
-end
+% for i = 1:size(data,2);
+%     figure
+%     plot(data{i}.x,data{i}.z)
+%     title([metadata{i}.string_data.Label,' [',...
+%         metadata{i}.string_data.Z_Units,']'],'FontSize',20)
+%     xlabel(metadata{i}.string_data.X_Units,'FontSize',16) % x units 
+%     % in spectroscopy, y is empty
+%     ylabel(metadata{i}.string_data.Z_Units,'FontSize',16) % z units
+%     grid
+% end
 %% only for images
 % Plot ALL 2 d data 
-% for i=1:size(data,2)
-%     figure
-%     imagesc([data{i}.x(1),data{i}.x(end)],[data{i}.y(1),data{i}.y(end)],...
-%             data{i}.z)
-%     colorbar
-%     colormap(gray)
-%     title([string_data(i).strings{1,2},' [',string_data(i).strings{10,2},']'],'FontSize',20)
-%     xlabel(string_data(i).strings{8,2},'FontSize',16)
-%     ylabel(string_data(i).strings{9,2},'FontSize',16)
-%     
-% end
-% % Take a profile
-%     
-% figure
-% plot(data{end}.y,data{end}.z(:,100))
+for i=1:size(data,2)
+    figure
+    imagesc([data{i}.x(1),data{i}.x(end)],[data{i}.y(1),data{i}.y(end)],...
+            data{i}.z)
+    colorbar
+    colormap(gray)
+    title([metadata{i}.string_data.Label,' [',metadata{i}.string_data.Z_Units,']'],'FontSize',20)
+    xlabel(metadata{i}.string_data.X_Units,'FontSize',16)
+    ylabel(metadata{i}.string_data.Y_Units,'FontSize',16)
+    
+end
+% Take a profile
+    
+figure
+plot(data{end}.y,data{end}.z(:,100))
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
