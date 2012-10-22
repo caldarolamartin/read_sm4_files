@@ -14,17 +14,19 @@
 clear 
 % filename = '/home/martin/lec/phd/programas/matlab/read_sm4/devel_files/TGZ03_0001.SM4';
 % filename = '/home/martin/lec/phd/programas/matlab/read_sm4/devel_files/Hela_0001.SM4';
-filename = '/home/martin/lec/phd/programas/matlab/read_sm4/devel_files/TSpec_test_vidrio_0003.SM4';
+% filename = '/home/martin/lec/phd/programas/matlab/read_sm4/devel_files/TSpec_test_vidrio_0003.SM4';
+filename = '/home/martin/lec/phd/programas/matlab/read_sm4/devel_files/C_M_lito_fluo_rojo_0004.sm4';
+
 [data metadata]=read_sm4(filename);
 
 %% select if if the data is spectroscopy or image, in order to plot
 %% conviniently.
 
-% IMA = 'True';
-IMA = 'False';
+IMA = 'T'; % TRUE means that it is an image
+% IMA = 'False'; % FALSE means that is not an image, just force curves
 
 
-if IMA == 'False'
+if IMA == 'F'
     % PLOTS only for spectroscopy data
     for i = 1:size(data,2);
         figure
