@@ -12,14 +12,14 @@
 %%%%%%%%%%%%%%%%%%%%%%%%
 
 clear 
-% filename = '/home/martin/lec/phd/programas/matlab/read_sm4/devel_files/TGZ03_0001.SM4';
+filename = '/home/martin/lec/phd/programas/matlab/read_sm4/devel_files/TGZ03_0001.SM4';
 % filename = '/home/martin/lec/phd/programas/matlab/read_sm4/devel_files/Hela_0001.SM4';
 % filename = '/home/martin/lec/phd/programas/matlab/read_sm4/devel_files/TSpec_test_vidrio_0003.SM4';
-filename = '/home/martin/lec/phd/programas/matlab/read_sm4/devel_files/C_M_lito_fluo_rojo_0004.sm4';
-
+% filename = '/home/martin/lec/phd/programas/matlab/read_sm4/devel_files/C_M_lito_fluo_rojo_0004.sm4';
+% filename = 'E:\Martin\phd\programas\matlab\read_sm4\devel_files\TSpec_test_vidrio_0003.sm4';
 [data metadata]=read_sm4(filename);
 
-%% select if if the data is spectroscopy or image, in order to plot
+%% select if the data is spectroscopy or image, in order to plot
 %% conviniently.
 
 IMA = 'T'; % TRUE means that it is an image
