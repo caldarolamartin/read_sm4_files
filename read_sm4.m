@@ -227,7 +227,6 @@ for i=1:file_header.total_page_count
 end
 
 %% close the file
-
 fclose(fid); % close the file
 
 %% output of the program: the structures were already defined
