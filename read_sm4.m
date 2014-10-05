@@ -25,7 +25,7 @@ function [data metadata] = read_sm4(filename)
 % Object Type
 % Image Type
 % Line Type
-% source imgae type
+% source image type
 % image type
 % scan direction
 
@@ -70,7 +70,7 @@ object_type(20).name= 'RHK_OBJECT_PAGE_INDEX';
 %% image type
 image_type(1).code = 0:39;
 image_type(1).name = 'RHK_PAGE_UNDEFINED';  % = 0,
-image_type(2).name = 'RHK_PAGE_TOPOGAPHIC'; % = 1,
+image_type(2).name = 'RHK_PAGE_TOPOGRAPHIC'; % = 1,
 image_type(3).name = 'RHK_PAGE_CURRENT';    % = 2,
 image_type(4).name = 'RHK_PAGE_AUX';        % = 3,
 image_type(5).name = 'RHK_PAGE_FORCE';      % = 4,
@@ -95,7 +95,7 @@ image_type(23).name = 'RHK_PAGE_8_GAIN_CURRENT';         % = 22,
 image_type(24).name = 'RHK_PAGE_IV_64x64';               % = 23,
 image_type(25).name = 'RHK_PAGE_AUTOCORRELATION_SPECTRUM';% = 24,
 image_type(26).name = 'RHK_PAGE_COUNTER';                % = 25,
-image_type(27).name = 'RHK_PAGE_MULTICHANNEL_ANALYSER';  % = 26,
+image_type(27).name = 'RHK_PAGE_MULTICHANNEL_ANALYZER';  % = 26,
 image_type(28).name = 'RHK_PAGE_AFM_100';                % = 27,
 image_type(29).name = 'RHK_PAGE_CITS';                   % = 28,
 image_type(30).name = 'RHK_PAGE_GPIB';                   % = 29,
@@ -118,11 +118,12 @@ line_type(2).name = 'RHK_LINE_HISTOGRAM';       % = 1,
 line_type(3).name = 'RHK_LINE_CROSS_SECTION';   % = 2,
 line_type(4).name = 'RHK_LINE_LINE_TEST';       % = 3,
 line_type(5).name = 'RHK_LINE_OSCILLOSCOPE';    % = 4,
-line_type(6).name = 'RHK_LINE_NOISE_POWER_SPECTRUM';    % = 6,
-line_type(7).name = 'RHK_LINE_IV_SPECTRUM';             % = 7,
-line_type(8).name = 'RHK_LINE_IZ_SPECTRUM';             % = 8,
-line_type(9).name = 'RHK_LINE_IMAGE_X_AVERAGE';         % = 9,
-line_type(10).name = 'RHK_LINE_IMAGE_Y_AVERAGE';         % = 10,
+line_type(6).name = 'RHK_LINE_POWER_SPECTRUM';    % = 5,
+line_type(7).name = 'RHK_LINE_NOISE_POWER_SPECTRUM';    % = 6,
+line_type(8).name = 'RHK_LINE_IV_SPECTRUM';             % = 7,
+line_type(9).name = 'RHK_LINE_IZ_SPECTRUM';             % = 8,
+line_type(10).name = 'RHK_LINE_IMAGE_X_AVERAGE';         % = 9,
+line_type(11).name = 'RHK_LINE_IMAGE_Y_AVERAGE';         % = 10,
 line_type(12).name = 'RHK_LINE_NOISE_AUTOCORRELATION_SPECTRUM';  % = 11,
 line_type(13).name = 'RHK_LINE_MULTICHANNEL_ANALYSER_DATA';      % = 12,
 line_type(14).name = 'RHK_LINE_RENORMALIZED_IV';                 % = 13,
@@ -136,7 +137,7 @@ line_type(21).name = 'RHK_LINE_GXY';                             % = 20,
 line_type(22).name = 'RHK_LINE_ELECTROCHEMISTRY';                % = 21,
 line_type(23).name = 'RHK_LINE_DISCRETE_SPECTROSCOPY';           % = 22,
 
-%% source imgae type
+%% source image type
 source_image(1).code = 0:3;
 source_image(1).name = 'RHK_SOURCE_RAW';         % = 0,
 source_image(2).name = 'RHK_SOURCE_PROCESSED';   % = 1,
@@ -170,7 +171,7 @@ file_header = read_file_header();          % file header
 %       object_field_size: size of the following object (4 for each struct)
 %       reserved: bytes reserved for future use.
 
-%% read the objet list: Says what is in the file and where it is located
+%% read the object list: Says what is in the file and where it is located
 for i=1:file_header.object_list_count
     object_list(i) = read_objects();
 end
@@ -194,10 +195,10 @@ for j=1:page_index_header.page_count; % this for reads the page index array for 
 end
 clear aux
 
-%% read page header: use the data in page_idex_array
+%% read page header: use the data in page_index_array
 % this for runs over the page count and reads the page_header, the 
 % object_list_string and the string_data for each page
-% with this information the data can be acceced and understood.
+% with this information the data can be accessed and understood.
 for j = 1:page_index_header.page_count
     fseek(fid,page_index_array(j,1).offset-1,'bof'); % seek for the position where the page header is
     page_header(j) = read_page_header(); % read the page header with the function defined later in this file
@@ -229,7 +230,7 @@ end
 
 fclose(fid); % close the file
 
-%% output of the program: the structures wher already defined
+%% output of the program: the structures were already defined
 % the output is data and metadata
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
@@ -419,7 +420,7 @@ fclose(fid); % close the file
             
             % change to physical units the measured data
             aux2 = page_header(j).z_offset+double(aux)*page_header(j).z_scale/256;
-            % for some unkwon reason, to get the right scale I have to
+            % for some unknown reason, to get the right scale I have to
             % dived by 256.
             %
             % reshape to build a matix
@@ -434,3 +435,4 @@ fclose(fid); % close the file
 
 
 end
+
